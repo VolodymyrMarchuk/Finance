@@ -3,9 +3,14 @@ package com.example.finances.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "users")
+@Entity(
+    tableName = "users",
+    indices = [Index(value = ["userLogin"], unique = true),
+                Index(value = ["userMail"], unique = true)]
+    )
 data class Users(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "userId") val userId: Int = 0,
@@ -14,10 +19,10 @@ data class Users(
     //Should add for password field -> encrypt before SAVING and decrypt when READING
     @ColumnInfo(name = "userPassword") val userPassword: String,
 
-    @ColumnInfo(name = "userName") val userName: String,
-    @ColumnInfo(name = "userSurname") val userSurname: String,
-    @ColumnInfo(name = "userPhone") val userPhone: String,
-    @ColumnInfo(name = "userMail") val userMail: String
+    @ColumnInfo(name = "userName", defaultValue = "") val userName: String,
+    @ColumnInfo(name = "userSurname", defaultValue = "") val userSurname: String,
+    @ColumnInfo(name = "userPhone", defaultValue = "") val userPhone: String,
+    @ColumnInfo(name = "userMail", defaultValue = "") val userMail: String
 )
 
 

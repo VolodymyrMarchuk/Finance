@@ -22,13 +22,22 @@ import com.example.finances.ui.theme.FinancesTheme
 
 
 @Composable
-fun RegistrationScreen() {
-    var login = remember { mutableStateOf("") }
-    var password = remember { mutableStateOf("") }
-    var name = remember { mutableStateOf("") }
-    var surname = remember { mutableStateOf("") }
-    var phone = remember { mutableStateOf("") }
-    var mail = remember { mutableStateOf("") }
+fun RegistrationScreen(
+    onRegister: (
+        userLogin: String,
+        userPassword: String,
+        userName: String,
+        userSurname: String,
+        userPhone: String,
+        userMail: String
+            ) -> Unit
+) {
+    val login = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
+    val name = remember { mutableStateOf("") }
+    val surname = remember { mutableStateOf("") }
+    val phone = remember { mutableStateOf("") }
+    val mail = remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -88,7 +97,9 @@ fun RegistrationScreen() {
                     visualTransformation = PasswordVisualTransformation()
                 )
                 OutlinedButton(
-                    onClick = {},
+                    onClick = {onRegister(
+                        login.value, password.value, name.value, surname.value, phone.value, mail.value
+                    )},
                     modifier = Modifier.padding(top = 15.dp)
                 ) {
                     Text(text = "Register")
@@ -103,6 +114,6 @@ fun RegistrationScreen() {
 @Composable
 fun RegistrationScreenPreview() {
     FinancesTheme {
-        RegistrationScreen()
+        RegistrationScreen(onRegister = {userLogin, userPassword, userName, userSurname, userPhone, userMail -> })
     }
 }

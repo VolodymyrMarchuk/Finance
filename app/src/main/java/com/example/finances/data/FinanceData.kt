@@ -22,7 +22,8 @@ data class Users(
     @ColumnInfo(name = "userName", defaultValue = "") val userName: String,
     @ColumnInfo(name = "userSurname", defaultValue = "") val userSurname: String,
     @ColumnInfo(name = "userPhone", defaultValue = "") val userPhone: String,
-    @ColumnInfo(name = "userMail", defaultValue = "") val userMail: String
+    @ColumnInfo(name = "userMail", defaultValue = "") val userMail: String,
+    @ColumnInfo(name = "userOnline") val userOnline: Boolean = false
 )
 
 

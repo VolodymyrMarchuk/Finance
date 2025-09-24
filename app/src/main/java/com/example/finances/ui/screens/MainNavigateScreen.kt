@@ -1,6 +1,7 @@
 package com.example.finances.ui.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -52,7 +54,7 @@ fun FinanceApp(
             val result = snackbarHostState.showSnackbar(
                 message = event.message,
                 actionLabel = event.action?.name,
-                duration = SnackbarDuration.Long
+                duration = SnackbarDuration.Short
             )
 
             if (result == SnackbarResult.ActionPerformed) {
@@ -94,6 +96,7 @@ fun FinanceApp(
                             userPhone = phone,
                             userMail = mail
                         )
+
                     }
                 )
             }

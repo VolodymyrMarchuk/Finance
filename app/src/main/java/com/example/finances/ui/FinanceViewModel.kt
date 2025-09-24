@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.room.ColumnInfo
 import com.example.finances.data.FinanceDBRepository
 import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
@@ -48,6 +47,11 @@ class FinanceViewModel(
         )
         try {
             financeDBRepository.userRegister(insertItem)
+            SnackbarController.sendEvent(
+                event = SnackbarEvent(
+                    message = "Success: You are registered!"
+                )
+            )
         } catch (e: Exception) {
             Log.i("Insert user -> ", e.message.toString())
             SnackbarController.sendEvent(

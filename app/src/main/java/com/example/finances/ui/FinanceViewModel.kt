@@ -51,6 +51,21 @@ class FinanceViewModel(
     val currentUser = _currentuser.asStateFlow()
 
     //Update used in Database - online
+    private fun userOnline(
+        userLogin: String,
+        userPassword: String,
+    ) {
+        viewModelScope.launch {
+            financeDBRepository.userOnline(userLogin, userPassword)
+        }
+        Log.i("Online user ->", "Finish")
+    }
+
+    fun userOffline(id: Int) {
+        viewModelScope.launch {
+            financeDBRepository.userOffline(id)
+        }
+    }
 
     //Registration of new user
     fun userRegistration(
@@ -104,25 +119,23 @@ class FinanceViewModel(
         }
     }
 
-    fun updateCurrentUser(
+    fun verifyUser(
         userLogin: String,
         userPassword: String,
     ) {
+        Log.i("verifyUser user ->", "Start")
         _currentuser.update { user->
             user.copy(
                 userLogin = userLogin,
                 userPassword = userPassword
             )
         }
+        userOnline(userLogin = userLogin, userPassword = userPassword)
     }
 
-    fun userLogin(
-        userLogin: String,
-        userPassword: String,
-    ) : Flow<Users?> {
-        val userLog = financeDBRepository.userLogin(userLogin, userPassword)
-
-        return userLog
+    fun userLogin() : Flow<Users?> {
+        val currentUser = financeDBRepository.userLogin()
+        return currentUser
     }
 
     companion object {

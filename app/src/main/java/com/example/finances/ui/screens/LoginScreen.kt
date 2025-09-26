@@ -31,7 +31,9 @@ fun LoginScreen(
             ) -> Unit
 ) {
     var login by remember { mutableStateOf("") }
+    var isLoginNotEmpty by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
+    var isPasswordNotEmpty by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -52,21 +54,41 @@ fun LoginScreen(
                     label = {
                         Text(text = "Login")
                     },
-                    onValueChange = { login = it }
+                    onValueChange = {
+                        login = it
+                        isLoginNotEmpty = login.isNotEmpty()
+                    },
+                    isError = !isLoginNotEmpty,
+                    singleLine = true
                 )
                 OutlinedTextField(
                     value = password,
                     label = {
                         Text(text = "Password")
                     },
-                    onValueChange = { password = it },
+                    onValueChange = {
+                        password = it
+                        isPasswordNotEmpty = password.isNotEmpty()
+                        },
+                    isError = !isPasswordNotEmpty,
+                    singleLine = true,
                     visualTransformation = PasswordVisualTransformation()
                 )
-                OutlinedButton(
-                    onClick = { userLogin(login, password) },
-                    modifier = Modifier.padding(top = 15.dp)
-                ) {
-                    Text(text = "Submit")
+                if (isLoginNotEmpty and isPasswordNotEmpty) {
+                    OutlinedButton(
+                        onClick = { userLogin(login, password) },
+                        modifier = Modifier.padding(top = 15.dp)
+                    ) {
+                        Text(text = "LogIn")
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = { },
+                        modifier = Modifier.padding(top = 15.dp),
+                        enabled = false
+                    ) {
+                        Text(text = "LogIn")
+                    }
                 }
             }
         }

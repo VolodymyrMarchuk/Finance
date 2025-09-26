@@ -44,10 +44,9 @@ fun FinanceApp(
     viewModel: FinanceViewModel = viewModel(factory = FinanceViewModel.factory),
     modifier: Modifier = Modifier
 ) {
-    val currentUserLoginPassword by viewModel.currentUser.collectAsState()
-    val currentUser by viewModel.userLogin(
-        currentUserLoginPassword.userLogin.toString(),
-        currentUserLoginPassword.userPassword.toString()).collectAsState(initial = null)
+    val currentUser by viewModel.userLogin().collectAsState(initial = null)
+
+
 
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -83,14 +82,23 @@ fun FinanceApp(
             startDestination = ScreenManager.FINANCE_START_SCREEN.name
         ) {
             composable(route = ScreenManager.FINANCE_START_SCREEN.name) {
+                if (currentUser != null) {
+                    CurrentUserScreen(currentUser, logOut = {userId->
+                        if(userId != null) {
+                            viewModel.userOffline(userId)
+                            financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
+                        }
+                    })
+                } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
                     onRegisterClick = { financeNavHostController.navigate(ScreenManager.FINANCE_REGISTER_SCREEN.name) }
                 )
+                    }
             }
             composable(route = ScreenManager.FINANCE_LOGIN_SCREEN.name) {
                 LoginScreen(userLogin = {login, password ->
-                    viewModel.updateCurrentUser(login, password)
+                    viewModel.verifyUser(login, password)
                     financeNavHostController.navigate(ScreenManager.FINANCE_CURRENTUSER_SCREEN.name)
                 })
             }
@@ -110,7 +118,12 @@ fun FinanceApp(
                 )
             }
             composable(route = ScreenManager.FINANCE_CURRENTUSER_SCREEN.name) {
-                CurrentUserScreen(currentUser)
+                CurrentUserScreen(currentUser, logOut = {userId->
+                    if(userId != null) {
+                        viewModel.userOffline(userId)
+                        financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
+                    }
+                })
             }
         }
     }

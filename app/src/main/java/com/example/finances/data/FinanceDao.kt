@@ -12,9 +12,12 @@ interface FinanceDao {
     @Insert(entity = Users::class, onConflict = OnConflictStrategy.FAIL)
     suspend fun userRegistration(userData: Users)
 
-    @Insert(entity = Users::class, onConflict = OnConflictStrategy.REPLACE)
-    suspend fun userUpdateOnline(userData: Users)
+    @Query("SELECT * FROM users WHERE userOnline = 1")
+    fun logIn() : Flow<Users>
 
-    @Query("SELECT * FROM users WHERE userLogin = :login AND userPassword = :password")
-    fun logIn(login: String, password: String) : Flow<Users>
+    @Query("UPDATE users SET userOnline = 1 WHERE userLogin = :login AND userPassword = :password")
+    suspend fun userOnline(login: String, password: String)
+
+    @Query("UPDATE users SET userOnline = 0 WHERE userId = :id")
+    suspend fun userOffline(id: Int)
 }

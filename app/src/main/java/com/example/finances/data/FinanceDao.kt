@@ -20,4 +20,6 @@ interface FinanceDao {
 
     @Query("UPDATE users SET userOnline = 0 WHERE userId = :id")
     suspend fun userOffline(id: Int)
+    @Query("UPDATE users SET userName = :name, userSurname =:surname, userPhone =:phone, userMail =:mail, userPassword =:password WHERE userId = :id")
+    suspend fun userUpdate(id: Int, name: String, surname: String, phone: String, mail: String, password: String)
 }

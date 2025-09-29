@@ -50,7 +50,7 @@ class FinanceViewModel(
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
 
-    //Update used in Database - online
+    //Update user in Database - online
     private fun userOnline(
         userLogin: String,
         userPassword: String,
@@ -61,10 +61,21 @@ class FinanceViewModel(
         Log.i("Online user ->", "Finish")
     }
 
+    //Update user in Database - offline
     fun userOffline(id: Int) {
         viewModelScope.launch {
             financeDBRepository.userOffline(id)
         }
+    }
+
+    fun userUpdate(
+        id: Int,
+        name: String,
+        surname: String,
+        phone: String,
+        mail: String,
+        password: String) = viewModelScope.launch {
+        financeDBRepository.userUpdate(id, name, surname, phone, mail, password)
     }
 
     //Registration of new user

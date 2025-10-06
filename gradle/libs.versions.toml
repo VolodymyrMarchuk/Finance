@@ -12,6 +12,8 @@ room = "2.8.0"
 viewModel = "2.9.4"
 navigationCompose = "2.9.4"
 dataStore = "1.1.7"
+composeCalendar = "1.4.0"
+kotlinDateTime = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +36,10 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "viewModel" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-datastore = {module = "androidx.datastore:datastore-preferences", version.ref = "dataStore"}
+composecalendar = {module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar"}
+kotlinx-datetime = {module = "io.github.boguszpawlowski.composecalendar:kotlinx-datetime", version.ref = "kotlinDateTime" }
+
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

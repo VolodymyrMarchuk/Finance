@@ -1,6 +1,7 @@
 package com.example.finances.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,24 +30,27 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.finances.R
 import com.example.finances.data.Users
 import com.example.finances.ui.FinanceViewModel
 import com.example.finances.ui.theme.FinancesTheme
 import kotlinx.coroutines.launch
 
 
-enum class ScreenManager {
-    FINANCE_START_SCREEN,
-    FINANCE_LOGIN_SCREEN,
-    FINANCE_REGISTER_SCREEN,
-    FINANCE_CURRENTUSER_SCREEN,
-    FINANCE_UPDATEUSER_SCREEN
+enum class ScreenManager(@StringRes val title: Int) {
+    FINANCE_START_SCREEN(title = R.string.start_screen),
+    FINANCE_LOGIN_SCREEN(title = R.string.login_screen),
+    FINANCE_REGISTER_SCREEN(title = R.string.reg_screen),
+    FINANCE_CURRENTUSER_SCREEN(title = R.string.cabinet_screen),
+    FINANCE_UPDATEUSER_SCREEN(title = R.string.update_screen)
 }
 
 @SuppressLint("RememberReturnType")
@@ -55,9 +60,12 @@ fun FinanceApp(
     viewModel: FinanceViewModel = viewModel(factory = FinanceViewModel.factory),
     modifier: Modifier = Modifier
 ) {
+    val backStackEntry by financeNavHostController.currentBackStackEntryAsState()
+    val currentScreen = ScreenManager.valueOf(
+        backStackEntry?.destination?.route ?: ScreenManager.FINANCE_START_SCREEN.name
+    )
+
     val currentUser by viewModel.userLogin().collectAsState(initial = null)
-
-
 
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -87,6 +95,7 @@ fun FinanceApp(
         modifier = Modifier.fillMaxSize(),
         topBar = { FinanceAppBar(
             currentUser,
+            currentScreen = currentScreen,
             onLogIn = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
             onRegister = { financeNavHostController.navigate(ScreenManager.FINANCE_REGISTER_SCREEN.name) },
             onLogOut = { userId->
@@ -167,6 +176,7 @@ fun FinanceApp(
 @Composable
 fun FinanceAppBar(
     user: Users?,
+    currentScreen: ScreenManager,
     onLogIn: () -> Unit,
     onLogOut: (userId: Int) -> Unit,
     onRegister: () -> Unit,
@@ -175,7 +185,7 @@ fun FinanceAppBar(
     var expanded by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
         title = {
-            Text(text = "Finance")
+            Text(text = stringResource(id = currentScreen.title))
         },
         actions = {
             Row {
@@ -268,6 +278,7 @@ fun FinanceAppBarPreview() {
     FinancesTheme {
         FinanceAppBar(
             user = null,
+            currentScreen = ScreenManager.FINANCE_CURRENTUSER_SCREEN,
             onLogIn = {},
             onLogOut = {},
             onRegister = {},

@@ -67,4 +67,6 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.composecalendar)
+    implementation(libs.kotlinx.datetime)
 }

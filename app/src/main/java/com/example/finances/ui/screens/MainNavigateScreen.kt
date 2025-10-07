@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -96,13 +97,15 @@ fun FinanceApp(
         topBar = { FinanceAppBar(
             currentUser,
             currentScreen = currentScreen,
+            canNavigateBack = financeNavHostController.previousBackStackEntry != null,
             onLogIn = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
             onRegister = { financeNavHostController.navigate(ScreenManager.FINANCE_REGISTER_SCREEN.name) },
             onLogOut = { userId->
                 viewModel.userOffline(userId)
                 financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)
             },
-            onUpdate = { financeNavHostController.navigate(ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) }
+            onUpdate = { financeNavHostController.navigate(ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) },
+            navigateUp = { financeNavHostController.navigateUp() }
             ) }
     ) { innerPadding ->
         NavHost(
@@ -117,7 +120,7 @@ fun FinanceApp(
                             viewModel.userOffline(userId)
                             financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
                         }
-                    })
+                    }, tryAgain = {})
                 } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
@@ -152,6 +155,8 @@ fun FinanceApp(
                         viewModel.userOffline(userId)
                         financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
                     }
+                }, tryAgain = {
+                    financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)
                 })
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
@@ -177,15 +182,27 @@ fun FinanceApp(
 fun FinanceAppBar(
     user: Users?,
     currentScreen: ScreenManager,
+    canNavigateBack: Boolean,
     onLogIn: () -> Unit,
     onLogOut: (userId: Int) -> Unit,
     onRegister: () -> Unit,
-    onUpdate: () -> Unit
+    onUpdate: () -> Unit,
+    navigateUp: () -> Unit
     ) {
     var expanded by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
         title = {
             Text(text = stringResource(id = currentScreen.title))
+        },
+        navigationIcon = {
+            if(canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back button"
+                    )
+                }
+            }
         },
         actions = {
             Row {
@@ -279,9 +296,11 @@ fun FinanceAppBarPreview() {
         FinanceAppBar(
             user = null,
             currentScreen = ScreenManager.FINANCE_CURRENTUSER_SCREEN,
+            canNavigateBack = true,
             onLogIn = {},
             onLogOut = {},
             onRegister = {},
-            onUpdate = {})
+            onUpdate = {},
+            navigateUp = {})
     }
 }

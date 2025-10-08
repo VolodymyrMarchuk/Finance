@@ -5,4 +5,5 @@
     <string name="reg_screen">Finances -> Registration</string>
     <string name="cabinet_screen">Finances -> Budget</string>
     <string name="update_screen">Finances -> Profile</string>
+    <string name="costs_screen">Finances -> Costs</string>
 </resources>

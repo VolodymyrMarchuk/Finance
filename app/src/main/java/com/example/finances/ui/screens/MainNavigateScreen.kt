@@ -40,6 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.finances.R
+import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.FinanceViewModel
 import com.example.finances.ui.theme.FinancesTheme
@@ -51,7 +52,8 @@ enum class ScreenManager(@StringRes val title: Int) {
     FINANCE_LOGIN_SCREEN(title = R.string.login_screen),
     FINANCE_REGISTER_SCREEN(title = R.string.reg_screen),
     FINANCE_CURRENTUSER_SCREEN(title = R.string.cabinet_screen),
-    FINANCE_UPDATEUSER_SCREEN(title = R.string.update_screen)
+    FINANCE_UPDATEUSER_SCREEN(title = R.string.update_screen),
+    FINANCE_COSTS_SCREEN(title = R.string.costs_screen)
 }
 
 @SuppressLint("RememberReturnType")
@@ -61,6 +63,7 @@ fun FinanceApp(
     viewModel: FinanceViewModel = viewModel(factory = FinanceViewModel.factory),
     modifier: Modifier = Modifier
 ) {
+    val listCostsSources by viewModel.showAllCostsSources().collectAsState(emptyList())
     val backStackEntry by financeNavHostController.currentBackStackEntryAsState()
     val currentScreen = ScreenManager.valueOf(
         backStackEntry?.destination?.route ?: ScreenManager.FINANCE_START_SCREEN.name
@@ -120,7 +123,7 @@ fun FinanceApp(
                             viewModel.userOffline(userId)
                             financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
                         }
-                    }, tryAgain = {})
+                    }, tryAgain = {}, goCostsScreen = {})
                 } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
@@ -150,14 +153,21 @@ fun FinanceApp(
                 )
             }
             composable(route = ScreenManager.FINANCE_CURRENTUSER_SCREEN.name) {
-                CurrentUserScreen(currentUser, logOut = {userId->
-                    if(userId != null) {
-                        viewModel.userOffline(userId)
-                        financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
-                    }
-                }, tryAgain = {
+                CurrentUserScreen(
+                    currentUser,
+                    logOut = {userId->
+                        if(userId != null) {
+                            viewModel.userOffline(userId)
+                            financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
+                        }
+                    },
+                    tryAgain = {
                     financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)
-                })
+                    },
+                    goCostsScreen = {
+                        financeNavHostController.navigate(route = ScreenManager.FINANCE_COSTS_SCREEN.name)
+                    }
+                    )
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
                 UserUpdateScreen(currentUser, onUpdate = {userId, userLogin, userPassword, userName, userSurname, userPhone, userMail ->
@@ -171,6 +181,22 @@ fun FinanceApp(
                 )
                     financeNavHostController.navigate(ScreenManager.FINANCE_CURRENTUSER_SCREEN.name)
                 })
+            }
+            composable(route = ScreenManager.FINANCE_COSTS_SCREEN.name) {
+                CostsScreen(
+                    sourceCosts = listCostsSources,
+                    user = currentUser, addCostsSource = {source ->
+                        viewModel.addNewCostsSource(source)
+                    },
+                    addNewCosts = {user, costSource, costsDate, costsSum ->
+                        viewModel.addCosts(
+                            userId = user,
+                            costsSource = costSource,
+                            costsDate = costsDate,
+                            costsSum = costsSum
+                        )
+                    }
+                )
             }
         }
     }

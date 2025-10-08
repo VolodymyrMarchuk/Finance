@@ -11,7 +11,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
+import com.example.finances.data.Costs
 import com.example.finances.data.FinanceDBRepository
+import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
 import com.example.finances.ui.screens.SnackbarController
@@ -46,6 +48,8 @@ class FinanceViewModel(
 ) : ViewModel() {
 
     var user: Users? = null
+    var sourceCosts: SourceCosts? = null
+    var costs: Costs? = null
 
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
@@ -77,6 +81,50 @@ class FinanceViewModel(
         password: String) = viewModelScope.launch {
         financeDBRepository.userUpdate(id, name, surname, phone, mail, password)
     }
+
+
+    // -------------------------------------------------------- COSTS -----------------------------
+    fun addCosts(
+        userId: Int,
+        costsSource: Int,
+        costsDate: String,
+        costsSum: Float
+    ) = viewModelScope.launch {
+        val insertItem = costs?.copy(
+            costsUserId = userId,
+            costsSourceId = costsSource,
+            costsDate = costsDate,
+            costsSum = costsSum
+        ) ?: Costs(
+            costsUserId = userId,
+            costsSourceId = costsSource,
+            costsDate = costsDate,
+            costsSum = costsSum
+        )
+        try {
+            financeDBRepository.addCosts(insertItem)
+            costs = null
+        } catch (e: Exception) {
+            Log.i("Insert costs -> ", e.message.toString())
+        }
+    }
+    fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
+        val insertItem = sourceCosts?.copy(
+            sourceCostsName = newCostsSource
+        ) ?: SourceCosts(sourceCostsName = newCostsSource)
+
+        try {
+            financeDBRepository.newCostsSource(insertItem)
+            sourceCosts = null
+        } catch (e: Exception) {
+            Log.i("Insert sourceCosts -> ", e.message.toString())
+        }
+    }
+    fun showAllCostsSources() : Flow<List<SourceCosts?>> {
+        val listCostsSource = financeDBRepository.allCostsSources()
+        return listCostsSource
+    }
+    // --------------------------------------------------------------------------------------------
 
     //Registration of new user
     fun userRegistration(

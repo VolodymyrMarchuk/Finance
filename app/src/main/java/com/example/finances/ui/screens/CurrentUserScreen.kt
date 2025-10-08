@@ -1,5 +1,6 @@
 package com.example.finances.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +41,8 @@ import com.example.finances.ui.theme.FinancesTheme
 fun CurrentUserScreen(
     currentUser: Users?,
     logOut: (Int?) -> Unit,
-    tryAgain: () -> Unit
+    tryAgain: () -> Unit,
+    goCostsScreen: () -> Unit
 ) {
 //    val context = LocalContext.current
     Box(
@@ -93,6 +95,7 @@ fun CurrentUserScreen(
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .padding(10.dp)
+                            .clickable(true, onClick = { goCostsScreen() })
                     ) {
                         Column(
                             modifier = Modifier
@@ -232,26 +235,26 @@ fun SimpleTabs() {
 
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrentUserScreenPreview() {
-//    FinancesTheme {
-//        CurrentUserScreen(currentUser = Users(
-//            0,
-//            "Morfey",
-//            "currentPassword",
-//            "Volodymyr",
-//            "Marchuk",
-//            "0674104054",
-//            "vvmarchuk1984@gmail.com"
-//        ), logOut = {}, tryAgain = {})
-//    }
-//}
-
 @Preview(showBackground = true)
 @Composable
 fun CurrentUserScreenPreview() {
     FinancesTheme {
-        CurrentUserScreen(currentUser = null, logOut = {}, tryAgain = {})
+        CurrentUserScreen(currentUser = Users(
+            0,
+            "Morfey",
+            "currentPassword",
+            "Volodymyr",
+            "Marchuk",
+            "0674104054",
+            "vvmarchuk1984@gmail.com"
+        ), logOut = {}, tryAgain = {}, goCostsScreen = {})
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun CurrentUserScreenPreview() {
+//    FinancesTheme {
+//        CurrentUserScreen(currentUser = null, logOut = {}, tryAgain = {})
+//    }
+//}

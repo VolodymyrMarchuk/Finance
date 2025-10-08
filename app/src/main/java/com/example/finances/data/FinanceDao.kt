@@ -11,9 +11,15 @@ import kotlinx.coroutines.flow.Flow
 interface FinanceDao {
     @Insert(entity = Users::class, onConflict = OnConflictStrategy.FAIL)
     suspend fun userRegistration(userData: Users)
+    @Insert(entity = SourceCosts::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addCostsSource(newCostsSource: SourceCosts)
+    @Insert(entity = Costs::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addCosts(newCosts: Costs)
 
     @Query("SELECT * FROM users WHERE userOnline = 1")
     fun logIn() : Flow<Users>
+    @Query("SELECT * FROM sourceCosts")
+    fun showCostsSources() : Flow<List<SourceCosts?>>
 
     @Query("UPDATE users SET userOnline = 1 WHERE userLogin = :login AND userPassword = :password")
     suspend fun userOnline(login: String, password: String)

@@ -43,21 +43,7 @@ data class SourceCosts(
 )
 
 
-@Entity(
-    tableName = "income",
-    foreignKeys = [
-        ForeignKey(
-            entity = Users::class,
-            parentColumns = ["userId"],
-            childColumns = ["incomeUserId"]
-        ),
-        ForeignKey(
-            entity = SourceIncome::class,
-            parentColumns = ["sourceIncomeId"],
-            childColumns = ["incomeSourceId"]
-        )
-    ]
-)
+@Entity(tableName = "income")
 data class Income(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "incomeId") val incomeId: Int = 0,
@@ -69,21 +55,7 @@ data class Income(
 )
 
 
-@Entity(
-    tableName = "costs",
-    foreignKeys = [
-        ForeignKey(
-            entity = Users::class,
-            parentColumns = ["userId"],
-            childColumns = ["costsUserId"]
-        ),
-        ForeignKey(
-            entity = SourceIncome::class,
-            parentColumns = ["sourceIncomeId"],
-            childColumns = ["costsSourceId"]
-        )
-    ]
-)
+@Entity(tableName = "costs")
 data class Costs(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "costsId") val costsId: Int = 0,

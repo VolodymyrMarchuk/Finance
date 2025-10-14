@@ -1,6 +1,7 @@
 package com.example.finances.ui.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -123,7 +124,9 @@ fun FinanceApp(
                             viewModel.userOffline(userId)
                             financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
                         }
-                    }, tryAgain = {}, goCostsScreen = {})
+                    },
+                        tryAgain = {},
+                        goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)})
                 } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
@@ -161,12 +164,8 @@ fun FinanceApp(
                             financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
                         }
                     },
-                    tryAgain = {
-                    financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)
-                    },
-                    goCostsScreen = {
-                        financeNavHostController.navigate(route = ScreenManager.FINANCE_COSTS_SCREEN.name)
-                    }
+                    tryAgain = {financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)},
+                    goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)}
                     )
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
@@ -185,7 +184,8 @@ fun FinanceApp(
             composable(route = ScreenManager.FINANCE_COSTS_SCREEN.name) {
                 CostsScreen(
                     sourceCosts = listCostsSources,
-                    user = currentUser, addCostsSource = {source ->
+                    user = currentUser,
+                    addCostsSource = {source ->
                         viewModel.addNewCostsSource(source)
                     },
                     addNewCosts = {user, costSource, costsDate, costsSum ->

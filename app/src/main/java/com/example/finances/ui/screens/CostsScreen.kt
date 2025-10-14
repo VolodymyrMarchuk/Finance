@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -20,13 +22,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,9 @@ import com.example.finances.data.Costs
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun CostsScreen(
@@ -45,7 +50,7 @@ fun CostsScreen(
             user: Int,
             costsSource: Int,
             costsDate: String,
-            costsSum: Float
+            costsSum: Double
             ) -> Unit
 ) {
 
@@ -55,10 +60,16 @@ fun CostsScreen(
     ) {
         var expanded by remember { mutableStateOf(false) }
         var costsDate by remember { mutableStateOf("") }
-        var costsSource by remember { mutableIntStateOf(0) }
+        var costsSource by remember { mutableIntStateOf(0)}
         var newCostsSource by remember { mutableStateOf("") }
-        var costsSum by remember { mutableFloatStateOf(0f) }
+        var costsSum by remember { mutableStateOf("") }
+        var showDialog by remember { mutableStateOf(false) }
+        var showCalendar by remember { mutableStateOf(false) }
         val userId = user?.userId ?: 0
+
+        var isValidSum by remember { mutableStateOf(false) }
+        val sumRegex = Regex("^\\d+(\\.\\d{2})?\$")
+
         Card {
             Column (
                 modifier = Modifier.padding(5.dp),
@@ -69,8 +80,20 @@ fun CostsScreen(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
+                if (showDialog) {
+                    AddSource(
+                        onDismissRequest = {
+                            showDialog = false
+                        },
+                        onConfirmation = {
+                            addCostsSource(it)
+                            showDialog = false
+                        }
+                    )
+                }
                 OutlinedTextField(
                     value = newCostsSource,
+                    readOnly = true,
                     label = {
                         Text(text = "Source:")
                     },
@@ -87,7 +110,8 @@ fun CostsScreen(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Add cost source",
                                 modifier = Modifier.clickable(true, onClick = {
-                                    addCostsSource(newCostsSource)
+                                    showDialog = true
+                                    newCostsSource = ""
                                 })
                             )
                         }
@@ -114,13 +138,40 @@ fun CostsScreen(
                         newCostsSource = it
                     }
                 )
+                if(showCalendar) {
+                    ChooseDate(
+                        onDateSelected = {selectedDate->
+                            if (selectedDate != null) {
+                                val date = Date(selectedDate)
+                                val formattedDate = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
+                                costsDate = formattedDate
+                            } else {
+                                costsDate = "No date selected"
+                            }
+                            showCalendar = false
+                        },
+                        onDismiss = {
+                            showCalendar = false
+                        }
+                    )
+                }
                 OutlinedTextField(
                     value = costsDate,
+                    readOnly = true,
                     label = {
                         Text(text = "Date:")
                     },
                     onValueChange = {
                         costsDate = it
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Calendar",
+                            modifier = Modifier.clickable(enabled = true, onClick = {
+                                showCalendar = true
+                            })
+                            )
                     }
                 )
                 OutlinedTextField(
@@ -129,13 +180,20 @@ fun CostsScreen(
                         Text(text = "Sum:")
                     },
                     onValueChange = {
-                        costsSum = it.toFloat()
-                    }
-                )
+                        costsSum = it
+                        isValidSum = sumRegex.matches(it)
 
+                    },
+                    isError = !isValidSum,
+                    singleLine = true
+                )
+                if(isValidSum and costsDate.isNotEmpty() and newCostsSource.isNotEmpty()) {
                     OutlinedButton(
                         onClick = {
-                            addNewCosts(userId,costsSource, costsDate, costsSum)
+                            addNewCosts(userId, costsSource, costsDate, costsSum.toDouble())
+                            newCostsSource = ""
+                            costsDate = ""
+                            costsSum = ""
                         },
                         modifier = Modifier.padding(top = 15.dp)
                     ) {
@@ -143,11 +201,73 @@ fun CostsScreen(
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Add costs"
-                                )
+                            )
                             Text(text = "Add")
                         }
                     }
+                } else {
+                    OutlinedButton(
+                        onClick = {},
+                        enabled = false,
+                        modifier = Modifier.padding(top = 15.dp)
+                    ) {
+                        Row {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add costs"
+                            )
+                            Text(text = "Add")
+                        }
+                    }
+                }
 
+            }
+        }
+    }
+}
+
+
+@Composable
+fun SeeLastTenCosts(
+    costsList: List<Costs>,
+    sourceList: List<SourceCosts>
+    ) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(costsList) {costs->
+                Card (
+                    modifier = Modifier.fillMaxWidth().padding(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(5.dp)
+                    ) {
+                        Text(
+                            text = costs.costsDate,
+                            fontSize = 10.sp,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.align(Alignment.End)
+                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = sourceList[costs.costsSourceId-1].sourceCostsName,
+                                fontSize = 24.sp,
+                                modifier = Modifier.fillMaxSize(0.5f)
+
+                                )
+                            Text(
+                                text = costs.costsSum.toString(),
+                                fontWeight = FontWeight.Bold
+                                )
+                        }
+                    }
+                }
             }
         }
     }
@@ -156,20 +276,38 @@ fun CostsScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun CostsScreenPreview() {
+fun LastTenPreview() {
     FinancesTheme {
-        CostsScreen(
-            sourceCosts = listOf(SourceCosts(1, "Test")),
-            user = Users(
-            0,
-            "Morfey",
-            "currentPassword",
-            "Volodymyr",
-            "Marchuk",
-            "0674104054",
-            "vvmarchuk1984@gmail.com"
-        ), addCostsSource = {},
-            addNewCosts = {user, costSource, costsDate, costsSum -> }
-        )
+        SeeLastTenCosts(
+            listOf(Costs(1, 2, 3, 456.45, "12.12.2025"),
+                Costs(2, 2, 2, 46.45, "18.01.2025"),
+                Costs(3, 2, 1, 4356.45, "13.09.2025")
+                ),
+            listOf(SourceCosts(1, "Food"),
+                SourceCosts(2, "Sport"),
+                SourceCosts(3, "Hobby")
+                )
+            )
     }
 }
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun CostsScreenPreview() {
+//    FinancesTheme {
+//        CostsScreen(
+//            sourceCosts = listOf(SourceCosts(1, "Test")),
+//            user = Users(
+//            0,
+//            "Morfey",
+//            "currentPassword",
+//            "Volodymyr",
+//            "Marchuk",
+//            "0674104054",
+//            "vvmarchuk1984@gmail.com"
+//        ), addCostsSource = {},
+//            addNewCosts = {user, costSource, costsDate, costsSum -> }
+//        )
+//    }
+//}

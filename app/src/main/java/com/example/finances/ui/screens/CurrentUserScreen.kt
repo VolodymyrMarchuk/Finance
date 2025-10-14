@@ -1,5 +1,6 @@
 package com.example.finances.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Tab
@@ -35,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
+import io.github.boguszpawlowski.composecalendar.SelectableCalendar
+import io.github.boguszpawlowski.composecalendar.StaticCalendar
 
 
 @Composable
@@ -65,7 +69,7 @@ fun CurrentUserScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = currentUser?.userName.toString() + "  " + currentUser?.userSurname.toString(),
+                            text = currentUser.userName.toString() + "  " + currentUser.userSurname.toString(),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.fillMaxWidth(),
@@ -73,17 +77,17 @@ fun CurrentUserScreen(
                         )
                         Text(
                             fontSize = 18.sp,
-                            text = currentUser?.userLogin.toString(),
+                            text = currentUser.userLogin.toString(),
                             modifier = Modifier.padding(start = 10.dp)
                         )
                         Text(
                             fontSize = 18.sp,
-                            text = currentUser?.userPhone.toString(),
+                            text = currentUser.userPhone.toString(),
                             modifier = Modifier.padding(start = 10.dp)
                         )
                         Text(
                             fontSize = 18.sp,
-                            text = currentUser?.userMail.toString(),
+                            text = currentUser.userMail.toString(),
                             modifier = Modifier.padding(start = 10.dp)
                         )
                     }
@@ -91,11 +95,11 @@ fun CurrentUserScreen(
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Card(
+                    ElevatedButton(
+                        onClick = goCostsScreen,
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
                             .padding(10.dp)
-                            .clickable(true, onClick = { goCostsScreen() })
                     ) {
                         Column(
                             modifier = Modifier
@@ -115,7 +119,8 @@ fun CurrentUserScreen(
                             )
                         }
                     }
-                    Card(
+                    ElevatedButton(
+                        onClick = {},
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)

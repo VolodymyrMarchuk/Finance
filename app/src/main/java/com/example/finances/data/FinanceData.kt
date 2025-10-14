@@ -49,7 +49,7 @@ data class Income(
     @ColumnInfo(name = "incomeId") val incomeId: Int = 0,
     @ColumnInfo(name = "incomeUserId") val incomeUserId: Int,
     @ColumnInfo(name = "incomeSourceId") val incomeSourceId: Int,
-    @ColumnInfo(name = "incomeSum") val incomeSum : Float,
+    @ColumnInfo(name = "incomeSum") val incomeSum : Double,
     @ColumnInfo(name = "incomeDate") val incomeDate : String
 
 )
@@ -61,7 +61,7 @@ data class Costs(
     @ColumnInfo(name = "costsId") val costsId: Int = 0,
     @ColumnInfo(name = "costsUserId") val costsUserId: Int,
     @ColumnInfo(name = "costsSourceId") val costsSourceId: Int,
-    @ColumnInfo(name = "costsSum") val costsSum : Float,
+    @ColumnInfo(name = "costsSum") val costsSum : Double,
     @ColumnInfo(name = "costsDate") val costsDate : String
 
 )

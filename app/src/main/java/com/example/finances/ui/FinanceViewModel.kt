@@ -88,7 +88,7 @@ class FinanceViewModel(
         userId: Int,
         costsSource: Int,
         costsDate: String,
-        costsSum: Float
+        costsSum: Double
     ) = viewModelScope.launch {
         val insertItem = costs?.copy(
             costsUserId = userId,
@@ -110,8 +110,8 @@ class FinanceViewModel(
     }
     fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
         val insertItem = sourceCosts?.copy(
-            sourceCostsName = newCostsSource
-        ) ?: SourceCosts(sourceCostsName = newCostsSource)
+            sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() }
+        ) ?: SourceCosts(sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() })
 
         try {
             financeDBRepository.newCostsSource(insertItem)

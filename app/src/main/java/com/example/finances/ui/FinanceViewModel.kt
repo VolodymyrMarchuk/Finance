@@ -28,6 +28,9 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.String
 
 
@@ -54,7 +57,14 @@ class FinanceViewModel(
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
 
-    //Update user in Database - online
+    //Convert Long->Date to String->Date ----------------------------------------------------------
+    fun convertDateLongToString(selectedDate: Long) : String {
+        val date = Date(selectedDate)
+        val formattedDate = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
+        return formattedDate
+    }
+
+    //Update user in Database - online ------------------------------------------------------------
     private fun userOnline(
         userLogin: String,
         userPassword: String,
@@ -87,7 +97,7 @@ class FinanceViewModel(
     fun addCosts(
         userId: Int,
         costsSource: Int,
-        costsDate: String,
+        costsDate: Long,
         costsSum: Double
     ) = viewModelScope.launch {
         val insertItem = costs?.copy(
@@ -107,6 +117,10 @@ class FinanceViewModel(
         } catch (e: Exception) {
             Log.i("Insert costs -> ", e.message.toString())
         }
+    }
+    fun showLastTenCosts(userId: Int) : Flow<List<Costs?>> {
+        val lastTenCosts = financeDBRepository.tenCosts(userId)
+        return lastTenCosts
     }
     fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
         val insertItem = sourceCosts?.copy(

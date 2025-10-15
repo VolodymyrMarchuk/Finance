@@ -20,6 +20,8 @@ interface FinanceDao {
     fun logIn() : Flow<Users>
     @Query("SELECT * FROM sourceCosts")
     fun showCostsSources() : Flow<List<SourceCosts?>>
+    @Query("SELECT * FROM costs WHERE costsUserId=:userId ORDER BY costsDate DESC LIMIT 10")
+    fun showTenCosts(userId: Int) : Flow<List<Costs?>>
 
     @Query("UPDATE users SET userOnline = 1 WHERE userLogin = :login AND userPassword = :password")
     suspend fun userOnline(login: String, password: String)

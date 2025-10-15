@@ -65,6 +65,7 @@ fun FinanceApp(
     modifier: Modifier = Modifier
 ) {
     val listCostsSources by viewModel.showAllCostsSources().collectAsState(emptyList())
+//    val lastTenCosts by viewModel.showLastTenCosts().collectAsState(emptyList())
     val backStackEntry by financeNavHostController.currentBackStackEntryAsState()
     val currentScreen = ScreenManager.valueOf(
         backStackEntry?.destination?.route ?: ScreenManager.FINANCE_START_SCREEN.name
@@ -195,6 +196,12 @@ fun FinanceApp(
                             costsDate = costsDate,
                             costsSum = costsSum
                         )
+                    },
+                    convertDate = {selectedDate->
+                        viewModel.convertDateLongToString(selectedDate)
+                    },
+                    showLastTenCosts = {userId->
+                        viewModel.showLastTenCosts(userId)
                     }
                 )
             }

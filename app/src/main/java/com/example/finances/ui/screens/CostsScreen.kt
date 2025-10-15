@@ -14,15 +14,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,234 +41,256 @@ import com.example.finances.data.Costs
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun CostsScreen(
     sourceCosts: List<SourceCosts?>,
+//    costsList: List<Costs?>,
+
+    showLastTenCosts: (userId: Int) -> Flow<List<Costs?>>,
     user: Users?,
     addCostsSource: (String) -> Unit,
+    convertDate: (Long) -> String,
     addNewCosts: (
             user: Int,
             costsSource: Int,
-            costsDate: String,
+            costsDate: Long,
             costsSum: Double
             ) -> Unit
 ) {
+    var currentDate by remember { mutableLongStateOf(0) }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        var expanded by remember { mutableStateOf(false) }
-        var costsDate by remember { mutableStateOf("") }
-        var costsSource by remember { mutableIntStateOf(0)}
-        var newCostsSource by remember { mutableStateOf("") }
-        var costsSum by remember { mutableStateOf("") }
-        var showDialog by remember { mutableStateOf(false) }
-        var showCalendar by remember { mutableStateOf(false) }
-        val userId = user?.userId ?: 0
+    val costsList by showLastTenCosts(user?.userId ?: 0).collectAsState(emptyList())
+    var expanded by remember { mutableStateOf(false) }
+    var costsDate by remember { mutableStateOf("") }
+    var costsSource by remember { mutableIntStateOf(0)}
+    var newCostsSource by remember { mutableStateOf("") }
+    var costsSum by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var showCalendar by remember { mutableStateOf(false) }
+    val userId = user?.userId ?: 0
 
-        var isValidSum by remember { mutableStateOf(false) }
-        val sumRegex = Regex("^\\d+(\\.\\d{2})?\$")
+    var isValidSum by remember { mutableStateOf(false) }
+    val sumRegex = Regex("^\\d+(\\.\\d{2})?\$")
 
-        Card {
-            Column (
-                modifier = Modifier.padding(5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "New Costs",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                if (showDialog) {
-                    AddSource(
-                        onDismissRequest = {
-                            showDialog = false
-                        },
-                        onConfirmation = {
-                            addCostsSource(it)
-                            showDialog = false
-                        }
+    Column() {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Card {
+                Column(
+                    modifier = Modifier.padding(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "New Costs",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                }
-                OutlinedTextField(
-                    value = newCostsSource,
-                    readOnly = true,
-                    label = {
-                        Text(text = "Source:")
-                    },
-                    trailingIcon = {
-                        Row {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search cost source",
-                                modifier = Modifier.clickable(true, onClick = {
-                                    expanded = !expanded
-                                })
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add cost source",
-                                modifier = Modifier.clickable(true, onClick = {
-                                    showDialog = true
-                                    newCostsSource = ""
-                                })
-                            )
-                        }
-                        if(sourceCosts.isNotEmpty()) {
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                for (source in sourceCosts) {
-                                    DropdownMenuItem(
-                                        text = { Text(text = source!!.sourceCostsName) },
-                                        onClick = {
-                                            expanded = false
-                                            costsSource = source!!.sourceCostsId
-                                            newCostsSource = source.sourceCostsName
-                                        }
-                                    )
+                    if (showDialog) {
+                        AddSource(
+                            onDismissRequest = {
+                                showDialog = false
+                            },
+                            onConfirmation = {
+                                addCostsSource(it)
+                                showDialog = false
+                            }
+                        )
+                    }
+                    OutlinedTextField(
+                        value = newCostsSource,
+                        readOnly = true,
+                        label = {
+                            Text(text = "Source:")
+                        },
+                        trailingIcon = {
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search cost source",
+                                    modifier = Modifier.clickable(true, onClick = {
+                                        expanded = !expanded
+                                    })
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add cost source",
+                                    modifier = Modifier.clickable(true, onClick = {
+                                        showDialog = true
+                                        newCostsSource = ""
+                                    })
+                                )
+                            }
+                            if (sourceCosts.isNotEmpty()) {
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    for (source in sourceCosts) {
+                                        DropdownMenuItem(
+                                            text = { Text(text = source!!.sourceCostsName) },
+                                            onClick = {
+                                                expanded = false
+                                                costsSource = source!!.sourceCostsId
+                                                newCostsSource = source.sourceCostsName
+                                            }
+                                        )
+                                    }
                                 }
-                            }
 
-                        }
-                    },
-                    onValueChange = {
-                        newCostsSource = it
-                    }
-                )
-                if(showCalendar) {
-                    ChooseDate(
-                        onDateSelected = {selectedDate->
-                            if (selectedDate != null) {
-                                val date = Date(selectedDate)
-                                val formattedDate = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
-                                costsDate = formattedDate
-                            } else {
-                                costsDate = "No date selected"
                             }
-                            showCalendar = false
                         },
-                        onDismiss = {
-                            showCalendar = false
+                        onValueChange = {
+                            newCostsSource = it
                         }
                     )
-                }
-                OutlinedTextField(
-                    value = costsDate,
-                    readOnly = true,
-                    label = {
-                        Text(text = "Date:")
-                    },
-                    onValueChange = {
-                        costsDate = it
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "Calendar",
-                            modifier = Modifier.clickable(enabled = true, onClick = {
-                                showCalendar = true
-                            })
-                            )
+                    if (showCalendar) {
+                        ChooseDate(
+                            onDateSelected = { selectedDate ->
+                                if (selectedDate != null) {
+                                    costsDate = convertDate(selectedDate)
+                                    currentDate = selectedDate
+                                } else {
+                                    costsDate = "No date selected"
+                                }
+                                showCalendar = false
+                            },
+                            onDismiss = {
+                                showCalendar = false
+                            }
+                        )
                     }
-                )
-                OutlinedTextField(
-                    value = costsSum.toString(),
-                    label = {
-                        Text(text = "Sum:")
-                    },
-                    onValueChange = {
-                        costsSum = it
-                        isValidSum = sumRegex.matches(it)
-
-                    },
-                    isError = !isValidSum,
-                    singleLine = true
-                )
-                if(isValidSum and costsDate.isNotEmpty() and newCostsSource.isNotEmpty()) {
-                    OutlinedButton(
-                        onClick = {
-                            addNewCosts(userId, costsSource, costsDate, costsSum.toDouble())
-                            newCostsSource = ""
-                            costsDate = ""
-                            costsSum = ""
+                    OutlinedTextField(
+                        value = costsDate,
+                        readOnly = true,
+                        label = {
+                            Text(text = "Date:")
                         },
-                        modifier = Modifier.padding(top = 15.dp)
-                    ) {
-                        Row {
+                        onValueChange = {
+                            costsDate = it
+                        },
+                        trailingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add costs"
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "Calendar",
+                                modifier = Modifier.clickable(enabled = true, onClick = {
+                                    showCalendar = true
+                                })
                             )
-                            Text(text = "Add")
                         }
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = {},
-                        enabled = false,
-                        modifier = Modifier.padding(top = 15.dp)
-                    ) {
-                        Row {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Add costs"
-                            )
-                            Text(text = "Add")
-                        }
-                    }
-                }
+                    )
+                    OutlinedTextField(
+                        value = costsSum.toString(),
+                        label = {
+                            Text(text = "Sum:")
+                        },
+                        onValueChange = {
+                            costsSum = it
+                            isValidSum = sumRegex.matches(it)
 
+                        },
+                        isError = !isValidSum,
+                        singleLine = true
+                    )
+                    if (isValidSum and costsDate.isNotEmpty() and newCostsSource.isNotEmpty()) {
+                        OutlinedButton(
+                            onClick = {
+                                addNewCosts(userId, costsSource, currentDate, costsSum.toDouble())
+                                newCostsSource = ""
+                                costsDate = ""
+                                costsSum = ""
+                            },
+                            modifier = Modifier.padding(top = 15.dp)
+                        ) {
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add costs"
+                                )
+                                Text(text = "Add")
+                            }
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = {},
+                            enabled = false,
+                            modifier = Modifier.padding(top = 15.dp)
+                        ) {
+                            Row {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add costs"
+                                )
+                                Text(text = "Add")
+                            }
+                        }
+                    }
+
+                }
             }
         }
+        SeeLastTenCosts(costsList = costsList, sourceList = sourceCosts, convertDate = convertDate)
     }
 }
 
 
 @Composable
 fun SeeLastTenCosts(
-    costsList: List<Costs>,
-    sourceList: List<SourceCosts>
+    costsList: List<Costs?>,
+    sourceList: List<SourceCosts?>,
+    convertDate: (Long) -> String
     ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
+    if (costsList.isNotEmpty()) {
+        HorizontalDivider(
+            modifier = Modifier.padding(top=20.dp)
+        )
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            items(costsList) {costs->
-                Card (
-                    modifier = Modifier.fillMaxWidth().padding(10.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Last 10 costs",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(5.dp)
-                    ) {
-                        Text(
-                            text = costs.costsDate,
-                            fontSize = 10.sp,
-                            fontStyle = FontStyle.Italic,
-                            modifier = Modifier.align(Alignment.End)
-                            )
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
+                    items(costsList) { costs ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(10.dp)
                         ) {
-                            Text(
-                                text = sourceList[costs.costsSourceId-1].sourceCostsName,
-                                fontSize = 24.sp,
-                                modifier = Modifier.fillMaxSize(0.5f)
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(5.dp)
+                            ) {
+                                Text(
+//                                    text = costs!!.costsDate.toString(),
+                                    text = convertDate(costs!!.costsDate),
+                                    fontSize = 10.sp,
+                                    fontStyle = FontStyle.Italic,
+                                    modifier = Modifier.align(Alignment.End)
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = sourceList[costs.costsSourceId - 1]!!.sourceCostsName,
+                                        fontSize = 24.sp,
+                                        modifier = Modifier.fillMaxSize(0.5f)
 
-                                )
-                            Text(
-                                text = costs.costsSum.toString(),
-                                fontWeight = FontWeight.Bold
-                                )
+                                    )
+                                    Text(
+                                        text = costs.costsSum.toString(),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -274,22 +300,22 @@ fun SeeLastTenCosts(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun LastTenPreview() {
-    FinancesTheme {
-        SeeLastTenCosts(
-            listOf(Costs(1, 2, 3, 456.45, "12.12.2025"),
-                Costs(2, 2, 2, 46.45, "18.01.2025"),
-                Costs(3, 2, 1, 4356.45, "13.09.2025")
-                ),
-            listOf(SourceCosts(1, "Food"),
-                SourceCosts(2, "Sport"),
-                SourceCosts(3, "Hobby")
-                )
-            )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun LastTenPreview() {
+//    FinancesTheme {
+//        SeeLastTenCosts(
+//            listOf(Costs(1, 2, 3, 456.45, 0),
+//                Costs(2, 2, 2, 46.45, 1),
+//                Costs(3, 2, 1, 4356.45, 3)
+//                ),
+//            listOf(SourceCosts(1, "Food"),
+//                SourceCosts(2, "Sport"),
+//                SourceCosts(3, "Hobby")
+//                )
+//            )
+//    }
+//}
 
 
 //@Preview(showBackground = true)
@@ -297,7 +323,10 @@ fun LastTenPreview() {
 //fun CostsScreenPreview() {
 //    FinancesTheme {
 //        CostsScreen(
-//            sourceCosts = listOf(SourceCosts(1, "Test")),
+//            sourceCosts = listOf(
+//                SourceCosts(1, "Food"),
+//                SourceCosts(2, "Sport"),
+//                SourceCosts(3, "Hobby")),
 //            user = Users(
 //            0,
 //            "Morfey",
@@ -306,8 +335,15 @@ fun LastTenPreview() {
 //            "Marchuk",
 //            "0674104054",
 //            "vvmarchuk1984@gmail.com"
-//        ), addCostsSource = {},
-//            addNewCosts = {user, costSource, costsDate, costsSum -> }
+//            ),
+//            addCostsSource = {},
+//            addNewCosts = {user, costSource, costsDate, costsSum -> },
+//            costsList = listOf(
+//                Costs(1, 2, 3, 456.45, 0),
+//                Costs(2, 2, 2, 46.45, 1),
+//                Costs(3, 2, 1, 4356.45, 3)
+//            ),
+//            convertDate = { lng: Long -> String.toString()}
 //        )
 //    }
 //}

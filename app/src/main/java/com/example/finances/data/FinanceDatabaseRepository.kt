@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface FinanceDBRepository {
     suspend fun newCostsSource(newCostsSource: SourceCosts)
     fun allCostsSources() : Flow<List<SourceCosts?>>
+    fun tenCosts(userId: Int) : Flow<List<Costs?>>
     suspend fun addCosts(newCosts: Costs)
 
     suspend fun userRegister(userData: Users)
@@ -19,6 +20,7 @@ interface FinanceDBRepository {
 class FinanceDatabaseRepository(private val financeDao: FinanceDao): FinanceDBRepository {
     override suspend fun newCostsSource(newCostsSource: SourceCosts) = financeDao.addCostsSource(newCostsSource)
     override fun allCostsSources(): Flow<List<SourceCosts?>> = financeDao.showCostsSources()
+    override fun tenCosts(userId: Int): Flow<List<Costs?>> = financeDao.showTenCosts(userId)
     override suspend fun addCosts(newCosts: Costs) = financeDao.addCosts(newCosts)
 
     override suspend fun userRegister(userData: Users) = financeDao.userRegistration(userData)

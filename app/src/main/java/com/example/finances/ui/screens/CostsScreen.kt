@@ -11,10 +11,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -37,17 +37,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.finances.data.Costs
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun CostsScreen(
     sourceCosts: List<SourceCosts?>,
-//    costsList: List<Costs?>,
-
     showLastTenCosts: (userId: Int) -> Flow<List<Costs?>>,
     user: Users?,
     addCostsSource: (String) -> Unit,
@@ -57,7 +57,8 @@ fun CostsScreen(
             costsSource: Int,
             costsDate: Long,
             costsSum: Double
-            ) -> Unit
+            ) -> Unit,
+    deleteCosts: (Costs) ->Unit
 ) {
     var currentDate by remember { mutableLongStateOf(0) }
 
@@ -232,7 +233,12 @@ fun CostsScreen(
                 }
             }
         }
-        SeeLastTenCosts(costsList = costsList, sourceList = sourceCosts, convertDate = convertDate)
+        SeeLastTenCosts(
+            costsList = costsList,
+            sourceList = sourceCosts,
+            convertDate = convertDate,
+            deleteCosts = deleteCosts
+            )
     }
 }
 
@@ -241,7 +247,8 @@ fun CostsScreen(
 fun SeeLastTenCosts(
     costsList: List<Costs?>,
     sourceList: List<SourceCosts?>,
-    convertDate: (Long) -> String
+    convertDate: (Long) -> String,
+    deleteCosts: (Costs) -> Unit
     ) {
     if (costsList.isNotEmpty()) {
         HorizontalDivider(
@@ -252,11 +259,12 @@ fun SeeLastTenCosts(
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 10.dp)
             ) {
                 Text(
                     text = "Last 10 costs",
-                    fontSize = 32.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
                 LazyColumn(
@@ -289,6 +297,17 @@ fun SeeLastTenCosts(
                                         text = costs.costsSum.toString(),
                                         fontWeight = FontWeight.Bold
                                     )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(true, onClick = {deleteCosts(costs)}),
+                                        contentAlignment = Alignment.BottomEnd
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Clear,
+                                            contentDescription = "Delete costs",
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -312,38 +331,41 @@ fun SeeLastTenCosts(
 //            listOf(SourceCosts(1, "Food"),
 //                SourceCosts(2, "Sport"),
 //                SourceCosts(3, "Hobby")
-//                )
+//                ),
+//            convertDate = {lng: Long -> String.toString()},
+//            deleteCosts = {}
 //            )
 //    }
 //}
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun CostsScreenPreview() {
-//    FinancesTheme {
-//        CostsScreen(
-//            sourceCosts = listOf(
-//                SourceCosts(1, "Food"),
-//                SourceCosts(2, "Sport"),
-//                SourceCosts(3, "Hobby")),
-//            user = Users(
-//            0,
-//            "Morfey",
-//            "currentPassword",
-//            "Volodymyr",
-//            "Marchuk",
-//            "0674104054",
-//            "vvmarchuk1984@gmail.com"
-//            ),
-//            addCostsSource = {},
-//            addNewCosts = {user, costSource, costsDate, costsSum -> },
-//            costsList = listOf(
-//                Costs(1, 2, 3, 456.45, 0),
-//                Costs(2, 2, 2, 46.45, 1),
-//                Costs(3, 2, 1, 4356.45, 3)
-//            ),
-//            convertDate = { lng: Long -> String.toString()}
-//        )
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun CostsScreenPreview() {
+    FinancesTheme {
+        CostsScreen(
+            sourceCosts = listOf(
+                SourceCosts(1, "Food"),
+                SourceCosts(2, "Sport"),
+                SourceCosts(3, "Hobby")),
+            user = Users(
+            0,
+            "Morfey",
+            "currentPassword",
+            "Volodymyr",
+            "Marchuk",
+            "0674104054",
+            "vvmarchuk1984@gmail.com"
+            ),
+            addCostsSource = {},
+            addNewCosts = {user, costSource, costsDate, costsSum -> },
+            showLastTenCosts = {userId: Int -> flowOf(listOf(
+                Costs(1, 2, 3, 456.45, 0),
+                Costs(2, 2, 2, 46.45, 1),
+                Costs(3, 2, 1, 4356.45, 3)
+            ))} ,
+            convertDate = { lng: Long -> String.toString()},
+            deleteCosts = {}
+        )
+    }
+}

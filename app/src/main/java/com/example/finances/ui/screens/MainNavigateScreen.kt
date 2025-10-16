@@ -202,6 +202,9 @@ fun FinanceApp(
                     },
                     showLastTenCosts = {userId->
                         viewModel.showLastTenCosts(userId)
+                    },
+                    deleteCosts = {costs->
+                        viewModel.deleteCosts(costs)
                     }
                 )
             }

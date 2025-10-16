@@ -8,6 +8,7 @@ interface FinanceDBRepository {
     fun allCostsSources() : Flow<List<SourceCosts?>>
     fun tenCosts(userId: Int) : Flow<List<Costs?>>
     suspend fun addCosts(newCosts: Costs)
+    suspend fun delCosts(costs: Costs)
 
     suspend fun userRegister(userData: Users)
     fun userLogin() : Flow<Users?>
@@ -22,6 +23,7 @@ class FinanceDatabaseRepository(private val financeDao: FinanceDao): FinanceDBRe
     override fun allCostsSources(): Flow<List<SourceCosts?>> = financeDao.showCostsSources()
     override fun tenCosts(userId: Int): Flow<List<Costs?>> = financeDao.showTenCosts(userId)
     override suspend fun addCosts(newCosts: Costs) = financeDao.addCosts(newCosts)
+    override suspend fun delCosts(costs: Costs) = financeDao.deleteCosts(costs)
 
     override suspend fun userRegister(userData: Users) = financeDao.userRegistration(userData)
     override fun userLogin(): Flow<Users?> = financeDao.logIn()

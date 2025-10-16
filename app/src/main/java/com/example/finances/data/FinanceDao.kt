@@ -1,6 +1,7 @@
 package com.example.finances.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -22,12 +23,13 @@ interface FinanceDao {
     fun showCostsSources() : Flow<List<SourceCosts?>>
     @Query("SELECT * FROM costs WHERE costsUserId=:userId ORDER BY costsDate DESC LIMIT 10")
     fun showTenCosts(userId: Int) : Flow<List<Costs?>>
-
     @Query("UPDATE users SET userOnline = 1 WHERE userLogin = :login AND userPassword = :password")
     suspend fun userOnline(login: String, password: String)
-
     @Query("UPDATE users SET userOnline = 0 WHERE userId = :id")
     suspend fun userOffline(id: Int)
     @Query("UPDATE users SET userName = :name, userSurname =:surname, userPhone =:phone, userMail =:mail, userPassword =:password WHERE userId = :id")
     suspend fun userUpdate(id: Int, name: String, surname: String, phone: String, mail: String, password: String)
+
+    @Delete(entity = Costs::class)
+    suspend fun deleteCosts(costs: Costs)
 }

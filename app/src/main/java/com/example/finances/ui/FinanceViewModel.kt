@@ -64,83 +64,7 @@ class FinanceViewModel(
         return formattedDate
     }
 
-    //Update user in Database - online ------------------------------------------------------------
-    private fun userOnline(
-        userLogin: String,
-        userPassword: String,
-    ) {
-        viewModelScope.launch {
-            financeDBRepository.userOnline(userLogin, userPassword)
-        }
-        Log.i("Online user ->", "Finish")
-    }
-
-    //Update user in Database - offline
-    fun userOffline(id: Int) {
-        viewModelScope.launch {
-            financeDBRepository.userOffline(id)
-        }
-    }
-
-    fun userUpdate(
-        id: Int,
-        name: String,
-        surname: String,
-        phone: String,
-        mail: String,
-        password: String) = viewModelScope.launch {
-        financeDBRepository.userUpdate(id, name, surname, phone, mail, password)
-    }
-
-
-    // -------------------------------------------------------- COSTS -----------------------------
-    fun addCosts(
-        userId: Int,
-        costsSource: Int,
-        costsDate: Long,
-        costsSum: Double
-    ) = viewModelScope.launch {
-        val insertItem = costs?.copy(
-            costsUserId = userId,
-            costsSourceId = costsSource,
-            costsDate = costsDate,
-            costsSum = costsSum
-        ) ?: Costs(
-            costsUserId = userId,
-            costsSourceId = costsSource,
-            costsDate = costsDate,
-            costsSum = costsSum
-        )
-        try {
-            financeDBRepository.addCosts(insertItem)
-            costs = null
-        } catch (e: Exception) {
-            Log.i("Insert costs -> ", e.message.toString())
-        }
-    }
-    fun showLastTenCosts(userId: Int) : Flow<List<Costs?>> {
-        val lastTenCosts = financeDBRepository.tenCosts(userId)
-        return lastTenCosts
-    }
-    fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
-        val insertItem = sourceCosts?.copy(
-            sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() }
-        ) ?: SourceCosts(sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() })
-
-        try {
-            financeDBRepository.newCostsSource(insertItem)
-            sourceCosts = null
-        } catch (e: Exception) {
-            Log.i("Insert sourceCosts -> ", e.message.toString())
-        }
-    }
-    fun showAllCostsSources() : Flow<List<SourceCosts?>> {
-        val listCostsSource = financeDBRepository.allCostsSources()
-        return listCostsSource
-    }
-    // --------------------------------------------------------------------------------------------
-
-    //Registration of new user
+    //---------------------------------------------------------USER--------------------------------
     fun userRegistration(
         userLogin: String,
         userPassword: String,
@@ -210,6 +134,82 @@ class FinanceViewModel(
         val currentUser = financeDBRepository.userLogin()
         return currentUser
     }
+    private fun userOnline(
+        userLogin: String,
+        userPassword: String,
+    ) {
+        viewModelScope.launch {
+            financeDBRepository.userOnline(userLogin, userPassword)
+        }
+        Log.i("Online user ->", "Finish")
+    }
+    fun userOffline(id: Int) {
+        viewModelScope.launch {
+            financeDBRepository.userOffline(id)
+        }
+    }
+    fun userUpdate(
+        id: Int,
+        name: String,
+        surname: String,
+        phone: String,
+        mail: String,
+        password: String) = viewModelScope.launch {
+        financeDBRepository.userUpdate(id, name, surname, phone, mail, password)
+    }
+
+
+    // -------------------------------------------------------- COSTS -----------------------------
+    fun addCosts(
+        userId: Int,
+        costsSource: Int,
+        costsDate: Long,
+        costsSum: Double
+    ) = viewModelScope.launch {
+        val insertItem = costs?.copy(
+            costsUserId = userId,
+            costsSourceId = costsSource,
+            costsDate = costsDate,
+            costsSum = costsSum
+        ) ?: Costs(
+            costsUserId = userId,
+            costsSourceId = costsSource,
+            costsDate = costsDate,
+            costsSum = costsSum
+        )
+        try {
+            financeDBRepository.addCosts(insertItem)
+            costs = null
+        } catch (e: Exception) {
+            Log.i("Insert costs -> ", e.message.toString())
+        }
+    }
+    fun showLastTenCosts(userId: Int) : Flow<List<Costs?>> {
+        val lastTenCosts = financeDBRepository.tenCosts(userId)
+        return lastTenCosts
+    }
+    fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
+        val insertItem = sourceCosts?.copy(
+            sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() }
+        ) ?: SourceCosts(sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() })
+
+        try {
+            financeDBRepository.newCostsSource(insertItem)
+            sourceCosts = null
+        } catch (e: Exception) {
+            Log.i("Insert sourceCosts -> ", e.message.toString())
+        }
+    }
+    fun showAllCostsSources() : Flow<List<SourceCosts?>> {
+        val listCostsSource = financeDBRepository.allCostsSources()
+        return listCostsSource
+    }
+    fun deleteCosts(costs: Costs) = viewModelScope.launch {
+        financeDBRepository.delCosts(costs)
+    }
+    // --------------------------------------------------------------------------------------------
+
+
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

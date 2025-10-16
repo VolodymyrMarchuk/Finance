@@ -54,7 +54,8 @@ enum class ScreenManager(@StringRes val title: Int) {
     FINANCE_REGISTER_SCREEN(title = R.string.reg_screen),
     FINANCE_CURRENTUSER_SCREEN(title = R.string.cabinet_screen),
     FINANCE_UPDATEUSER_SCREEN(title = R.string.update_screen),
-    FINANCE_COSTS_SCREEN(title = R.string.costs_screen)
+    FINANCE_COSTS_SCREEN(title = R.string.costs_screen),
+    FINANCE_INCOME_SCREEN(title = R.string.income_screen)
 }
 
 @SuppressLint("RememberReturnType")
@@ -65,14 +66,12 @@ fun FinanceApp(
     modifier: Modifier = Modifier
 ) {
     val listCostsSources by viewModel.showAllCostsSources().collectAsState(emptyList())
-//    val lastTenCosts by viewModel.showLastTenCosts().collectAsState(emptyList())
+    val listIncomeSources by viewModel.showAllIncomeSources().collectAsState(emptyList())
     val backStackEntry by financeNavHostController.currentBackStackEntryAsState()
     val currentScreen = ScreenManager.valueOf(
         backStackEntry?.destination?.route ?: ScreenManager.FINANCE_START_SCREEN.name
     )
-
     val currentUser by viewModel.userLogin().collectAsState(initial = null)
-
     val snackbarHostState = remember {
         SnackbarHostState()
     }
@@ -120,14 +119,17 @@ fun FinanceApp(
         ) {
             composable(route = ScreenManager.FINANCE_START_SCREEN.name) {
                 if (currentUser != null) {
-                    CurrentUserScreen(currentUser, logOut = {userId->
-                        if(userId != null) {
-                            viewModel.userOffline(userId)
-                            financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
-                        }
-                    },
+                    CurrentUserScreen(
+                        currentUser,
+                        logOut = {userId->
+                            if(userId != null) {
+                                viewModel.userOffline(userId)
+                                financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
+                            }
+                        },
                         tryAgain = {},
-                        goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)})
+                        goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
+                        goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)})
                 } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
@@ -166,7 +168,8 @@ fun FinanceApp(
                         }
                     },
                     tryAgain = {financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)},
-                    goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)}
+                    goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
+                    goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)}
                     )
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
@@ -205,6 +208,32 @@ fun FinanceApp(
                     },
                     deleteCosts = {costs->
                         viewModel.deleteCosts(costs)
+                    }
+                )
+            }
+            composable(route = ScreenManager.FINANCE_INCOME_SCREEN.name) {
+                IncomeScreen(
+                    sourceIncome = listIncomeSources,
+                    user = currentUser,
+                    addIncomeSource = {source ->
+                        viewModel.addNewIncomeSource(source)
+                    },
+                    addNewIncome = {user, incomeSource, incomeDate, incomeSum ->
+                        viewModel.addIncome(
+                            userId = user,
+                            incomeSource = incomeSource,
+                            incomeDate = incomeDate,
+                            incomeSum = incomeSum
+                        )
+                    },
+                    convertDate = {selectedDate->
+                        viewModel.convertDateLongToString(selectedDate)
+                    },
+                    showLastTenIncome = {userId->
+                        viewModel.showLastTenIncome(userId)
+                    },
+                    deleteIncome = {income->
+                        viewModel.deleteIncome(income)
                     }
                 )
             }

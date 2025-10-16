@@ -13,7 +13,9 @@ import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.example.finances.data.Costs
 import com.example.finances.data.FinanceDBRepository
+import com.example.finances.data.Income
 import com.example.finances.data.SourceCosts
+import com.example.finances.data.SourceIncome
 import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
 import com.example.finances.ui.screens.SnackbarController
@@ -53,6 +55,8 @@ class FinanceViewModel(
     var user: Users? = null
     var sourceCosts: SourceCosts? = null
     var costs: Costs? = null
+    var sourceIncome: SourceIncome? = null
+    var income: Income? = null
 
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
@@ -207,8 +211,56 @@ class FinanceViewModel(
     fun deleteCosts(costs: Costs) = viewModelScope.launch {
         financeDBRepository.delCosts(costs)
     }
-    // --------------------------------------------------------------------------------------------
 
+    // --------------------------------------------------------INCOME-------------------------------
+    fun addIncome(
+        userId: Int,
+        incomeSource: Int,
+        incomeDate: Long,
+        incomeSum: Double
+    ) = viewModelScope.launch {
+        val insertItem = income?.copy(
+            incomeUserId = userId,
+            incomeSourceId = incomeSource,
+            incomeDate = incomeDate,
+            incomeSum = incomeSum
+        ) ?: Income(
+            incomeUserId = userId,
+            incomeSourceId = incomeSource,
+            incomeDate = incomeDate,
+            incomeSum = incomeSum
+        )
+        try {
+            financeDBRepository.addIncome(insertItem)
+            income = null
+        } catch (e: Exception) {
+            Log.i("Insert income -> ", e.message.toString())
+        }
+    }
+    fun showLastTenIncome(userId: Int) : Flow<List<Income?>> {
+        val lastTenIncome = financeDBRepository.tenIncome(userId)
+        return lastTenIncome
+    }
+    fun addNewIncomeSource(newIncomeSource: String) = viewModelScope.launch {
+        val insertItem = sourceIncome?.copy(
+            sourceIncomeName = newIncomeSource.replaceFirstChar { it.uppercase() }
+        ) ?: SourceIncome(sourceIncomeName = newIncomeSource.replaceFirstChar { it.uppercase() })
+
+        try {
+            financeDBRepository.newIncomeSource(insertItem)
+            sourceIncome = null
+        } catch (e: Exception) {
+            Log.i("Insert sourceIncome -> ", e.message.toString())
+        }
+    }
+    fun showAllIncomeSources() : Flow<List<SourceIncome?>> {
+        val listIncomeSource = financeDBRepository.allIncomeSources()
+        return listIncomeSource
+    }
+    fun deleteIncome(income: Income) = viewModelScope.launch {
+        financeDBRepository.delIncome(income)
+    }
+    //---------------------------------------------------------------------------------------------
 
 
     companion object {

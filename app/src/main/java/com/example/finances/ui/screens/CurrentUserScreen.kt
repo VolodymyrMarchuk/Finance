@@ -46,7 +46,8 @@ fun CurrentUserScreen(
     currentUser: Users?,
     logOut: (Int?) -> Unit,
     tryAgain: () -> Unit,
-    goCostsScreen: () -> Unit
+    goCostsScreen: () -> Unit,
+    goIncomeScreen: () -> Unit
 ) {
 //    val context = LocalContext.current
     Box(
@@ -120,7 +121,7 @@ fun CurrentUserScreen(
                         }
                     }
                     ElevatedButton(
-                        onClick = {},
+                        onClick = goIncomeScreen,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
@@ -252,7 +253,7 @@ fun CurrentUserScreenPreview() {
             "Marchuk",
             "0674104054",
             "vvmarchuk1984@gmail.com"
-        ), logOut = {}, tryAgain = {}, goCostsScreen = {})
+        ), logOut = {}, tryAgain = {}, goCostsScreen = {}, goIncomeScreen = {})
     }
 }
 

@@ -37,37 +37,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.finances.data.Costs
-import com.example.finances.data.SourceCosts
+import com.example.finances.data.Income
+import com.example.finances.data.SourceIncome
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 @Composable
-fun CostsScreen(
-    sourceCosts: List<SourceCosts?>,
-    showLastTenCosts: (userId: Int) -> Flow<List<Costs?>>,
+fun IncomeScreen(
+    sourceIncome: List<SourceIncome?>,
+    showLastTenIncome: (userId: Int) -> Flow<List<Income?>>,
     user: Users?,
-    addCostsSource: (String) -> Unit,
+    addIncomeSource: (String) -> Unit,
     convertDate: (Long) -> String,
-    addNewCosts: (
-            user: Int,
-            costsSource: Int,
-            costsDate: Long,
-            costsSum: Double
-            ) -> Unit,
-    deleteCosts: (Costs) ->Unit
+    addNewIncome: (
+        user: Int,
+        incomeSource: Int,
+        incomeDate: Long,
+        incomeSum: Double
+    ) -> Unit,
+    deleteIncome: (Income) ->Unit
 ) {
     var currentDate by remember { mutableLongStateOf(0) }
 
-    val costsList by showLastTenCosts(user?.userId ?: 0).collectAsState(emptyList())
+    val incomeList by showLastTenIncome(user?.userId ?: 0).collectAsState(emptyList())
     var expanded by remember { mutableStateOf(false) }
-    var costsDate by remember { mutableStateOf("") }
-    var costsSource by remember { mutableIntStateOf(0)}
-    var newCostsSource by remember { mutableStateOf("") }
-    var costsSum by remember { mutableStateOf("") }
+    var incomeDate by remember { mutableStateOf("") }
+    var incomeSource by remember { mutableIntStateOf(0)}
+    var newIncomeSource by remember { mutableStateOf("") }
+    var incomeSum by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     var showCalendar by remember { mutableStateOf(false) }
     val userId = user?.userId ?: 0
@@ -86,7 +85,7 @@ fun CostsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "New Costs",
+                        text = "New Income",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -96,47 +95,47 @@ fun CostsScreen(
                                 showDialog = false
                             },
                             onConfirmation = {
-                                addCostsSource(it)
+                                addIncomeSource(it)
                                 showDialog = false
                             }
                         )
                     }
                     OutlinedTextField(
-                        value = newCostsSource,
+                        value = newIncomeSource,
                         readOnly = true,
                         label = {
-                            Text(text = "Source:")
+                            Text(text = "Income:")
                         },
                         trailingIcon = {
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = "Search costs source",
+                                    contentDescription = "Search income source",
                                     modifier = Modifier.clickable(true, onClick = {
                                         expanded = !expanded
                                     })
                                 )
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs source",
+                                    contentDescription = "Add income source",
                                     modifier = Modifier.clickable(true, onClick = {
                                         showDialog = true
-                                        newCostsSource = ""
+                                        newIncomeSource = ""
                                     })
                                 )
                             }
-                            if (sourceCosts.isNotEmpty()) {
+                            if (sourceIncome.isNotEmpty()) {
                                 DropdownMenu(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
-                                    for (source in sourceCosts) {
+                                    for (source in sourceIncome) {
                                         DropdownMenuItem(
-                                            text = { Text(text = source!!.sourceCostsName) },
+                                            text = { Text(text = source!!.sourceIncomeName) },
                                             onClick = {
                                                 expanded = false
-                                                costsSource = source!!.sourceCostsId
-                                                newCostsSource = source.sourceCostsName
+                                                incomeSource = source!!.sourceIncomeId
+                                                newIncomeSource = source.sourceIncomeName
                                             }
                                         )
                                     }
@@ -145,17 +144,17 @@ fun CostsScreen(
                             }
                         },
                         onValueChange = {
-                            newCostsSource = it
+                            newIncomeSource = it
                         }
                     )
                     if (showCalendar) {
                         ChooseDate(
                             onDateSelected = { selectedDate ->
                                 if (selectedDate != null) {
-                                    costsDate = convertDate(selectedDate)
+                                    incomeDate = convertDate(selectedDate)
                                     currentDate = selectedDate
                                 } else {
-                                    costsDate = "No date selected"
+                                    incomeDate = "No date selected"
                                 }
                                 showCalendar = false
                             },
@@ -165,13 +164,13 @@ fun CostsScreen(
                         )
                     }
                     OutlinedTextField(
-                        value = costsDate,
+                        value = incomeDate,
                         readOnly = true,
                         label = {
                             Text(text = "Date:")
                         },
                         onValueChange = {
-                            costsDate = it
+                            incomeDate = it
                         },
                         trailingIcon = {
                             Icon(
@@ -184,32 +183,32 @@ fun CostsScreen(
                         }
                     )
                     OutlinedTextField(
-                        value = costsSum.toString(),
+                        value = incomeSum.toString(),
                         label = {
                             Text(text = "Sum:")
                         },
                         onValueChange = {
-                            costsSum = it
+                            incomeSum = it
                             isValidSum = sumRegex.matches(it)
 
                         },
                         isError = !isValidSum,
                         singleLine = true
                     )
-                    if (isValidSum and costsDate.isNotEmpty() and newCostsSource.isNotEmpty()) {
+                    if (isValidSum and incomeDate.isNotEmpty() and newIncomeSource.isNotEmpty()) {
                         OutlinedButton(
                             onClick = {
-                                addNewCosts(userId, costsSource, currentDate, costsSum.toDouble())
-                                newCostsSource = ""
-                                costsDate = ""
-                                costsSum = ""
+                                addNewIncome(userId, incomeSource, currentDate, incomeSum.toDouble())
+                                newIncomeSource = ""
+                                incomeDate = ""
+                                incomeSum = ""
                             },
                             modifier = Modifier.padding(top = 15.dp)
                         ) {
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs"
+                                    contentDescription = "Add income"
                                 )
                                 Text(text = "Add")
                             }
@@ -223,7 +222,7 @@ fun CostsScreen(
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs"
+                                    contentDescription = "Add income"
                                 )
                                 Text(text = "Add")
                             }
@@ -233,24 +232,24 @@ fun CostsScreen(
                 }
             }
         }
-        SeeLastTenCosts(
-            costsList = costsList,
-            sourceList = sourceCosts,
+        SeeLastTenIncome(
+            incomeList = incomeList,
+            sourceList = sourceIncome,
             convertDate = convertDate,
-            deleteCosts = deleteCosts
-            )
+            deleteIncome = deleteIncome
+        )
     }
 }
 
 
 @Composable
-fun SeeLastTenCosts(
-    costsList: List<Costs?>,
-    sourceList: List<SourceCosts?>,
+fun SeeLastTenIncome(
+    incomeList: List<Income?>,
+    sourceList: List<SourceIncome?>,
     convertDate: (Long) -> String,
-    deleteCosts: (Costs) -> Unit
-    ) {
-    if (costsList.isNotEmpty()) {
+    deleteIncome: (Income) -> Unit
+) {
+    if (incomeList.isNotEmpty()) {
         HorizontalDivider(
             modifier = Modifier.padding(top=20.dp)
         )
@@ -263,14 +262,14 @@ fun SeeLastTenCosts(
                 modifier = Modifier.padding(top = 10.dp)
             ) {
                 Text(
-                    text = "Last 10 costs",
+                    text = "Last 10 income",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(costsList) { costs ->
+                    items(incomeList) { income ->
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(10.dp)
                         ) {
@@ -278,8 +277,7 @@ fun SeeLastTenCosts(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp)
                             ) {
                                 Text(
-//                                    text = costs!!.costsDate.toString(),
-                                    text = convertDate(costs!!.costsDate),
+                                    text = convertDate(income!!.incomeDate),
                                     fontSize = 10.sp,
                                     fontStyle = FontStyle.Italic,
                                     modifier = Modifier.align(Alignment.End)
@@ -288,24 +286,24 @@ fun SeeLastTenCosts(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = sourceList[costs.costsSourceId - 1]!!.sourceCostsName,
+                                        text = sourceList[income.incomeSourceId - 1]!!.sourceIncomeName,
                                         fontSize = 24.sp,
                                         modifier = Modifier.fillMaxSize(0.5f)
 
                                     )
                                     Text(
-                                        text = costs.costsSum.toString(),
+                                        text = income.incomeSum.toString(),
                                         fontWeight = FontWeight.Bold
                                     )
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable(true, onClick = {deleteCosts(costs)}),
+                                            .clickable(true, onClick = {deleteIncome(income)}),
                                         contentAlignment = Alignment.BottomEnd
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = "Delete costs",
+                                            contentDescription = "Delete income",
                                         )
                                     }
                                 }
@@ -323,17 +321,17 @@ fun SeeLastTenCosts(
 //@Composable
 //fun LastTenPreview() {
 //    FinancesTheme {
-//        SeeLastTenCosts(
-//            listOf(Costs(1, 2, 3, 456.45, 0),
-//                Costs(2, 2, 2, 46.45, 1),
-//                Costs(3, 2, 1, 4356.45, 3)
+//        SeeLastTenIncome(
+//            listOf(Income(1, 2, 3, 456.45, 0),
+//                Income(2, 2, 2, 46.45, 1),
+//                Income(3, 2, 1, 4356.45, 3)
 //                ),
-//            listOf(SourceCosts(1, "Food"),
-//                SourceCosts(2, "Sport"),
-//                SourceCosts(3, "Hobby")
+//            listOf(SourceIncome(1, "Food"),
+//                SourceIncome(2, "Sport"),
+//                SourceIncome(3, "Hobby")
 //                ),
 //            convertDate = {lng: Long -> String.toString()},
-//            deleteCosts = {}
+//            deleteIncome = {}
 //            )
 //    }
 //}
@@ -341,31 +339,31 @@ fun SeeLastTenCosts(
 
 @Preview(showBackground = true)
 @Composable
-fun CostsScreenPreview() {
+fun IncomeScreenPreview() {
     FinancesTheme {
-        CostsScreen(
-            sourceCosts = listOf(
-                SourceCosts(1, "Food"),
-                SourceCosts(2, "Sport"),
-                SourceCosts(3, "Hobby")),
+        IncomeScreen(
+            sourceIncome = listOf(
+                SourceIncome(1, "Food"),
+                SourceIncome(2, "Sport"),
+                SourceIncome(3, "Hobby")),
             user = Users(
-            0,
-            "Morfey",
-            "currentPassword",
-            "Volodymyr",
-            "Marchuk",
-            "0674104054",
-            "vvmarchuk1984@gmail.com"
+                0,
+                "Morfey",
+                "currentPassword",
+                "Volodymyr",
+                "Marchuk",
+                "0674104054",
+                "vvmarchuk1984@gmail.com"
             ),
-            addCostsSource = {},
-            addNewCosts = {user, costSource, costsDate, costsSum -> },
-            showLastTenCosts = {userId: Int -> flowOf(listOf(
-                Costs(1, 2, 3, 456.45, 0),
-                Costs(2, 2, 2, 46.45, 1),
-                Costs(3, 2, 1, 4356.45, 3)
+            addIncomeSource = {},
+            addNewIncome = {user, incomeSource, incomeDate, incomeSum -> },
+            showLastTenIncome = {userId: Int -> flowOf(listOf(
+                Income(1, 2, 3, 456.45, 0),
+                Income(2, 2, 2, 46.45, 1),
+                Income(3, 2, 1, 4356.45, 3)
             ))} ,
             convertDate = { lng: Long -> String.toString()},
-            deleteCosts = {}
+            deleteIncome = {}
         )
     }
 }

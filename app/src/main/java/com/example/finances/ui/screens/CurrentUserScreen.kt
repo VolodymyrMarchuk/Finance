@@ -1,5 +1,6 @@
 package com.example.finances.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,7 @@ fun CurrentUserScreen(
     tryAgain: () -> Unit,
     goCostsScreen: () -> Unit,
     goIncomeScreen: () -> Unit,
-    setData: () -> Unit
+    setData: (Int) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -202,7 +203,7 @@ fun CurrentUserScreen(
 fun SimpleTabs(
     incomeSum: Double,
     costsSum: Double,
-    setData: () -> Unit
+    setData: (id:Int) -> Unit
 ) {
     val localDate = LocalDate.now()
     val tabs = listOf("Day\n${localDate.dayOfMonth}",
@@ -220,14 +221,20 @@ fun SimpleTabs(
                 )
             }
         }
-
+        Log.i("Charts->", "costs = $costsSum\nincom = $incomeSum")
         when (selectedTabIndex) {
             0 -> { Text("Budget in current day")
-                setData()
+                setData(0)
                 Saldo(costsSum, incomeSum)
             }
-            1 -> Text("Budget in current month")
-            2 -> Text("Budget in current year")
+            1 -> { Text("Budget in current month")
+                setData(1)
+                Saldo(costsSum, incomeSum)
+            }
+            2 -> { Text("Budget in current year")
+                setData(2)
+                Saldo(costsSum, incomeSum)
+            }
         }
     }
 }

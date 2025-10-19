@@ -31,8 +31,8 @@ interface FinanceDao {
     fun showCostsSources() : Flow<List<SourceCosts?>>
     @Query("SELECT * FROM costs WHERE costsUserId=:userId ORDER BY costsDate DESC LIMIT 10")
     fun showTenCosts(userId: Int) : Flow<List<Costs?>>
-    @Query("SELECT SUM(costsSum) FROM costs WHERE (costsUserId=:userId AND costsDate=:date)")
-    suspend fun showCostsForDate(userId: Int, date: Long) : Double?
+    @Query("SELECT SUM(costsSum) FROM costs WHERE (costsUserId=:userId AND costsDate BETWEEN :dateFrom AND :dateTill)")
+    suspend fun showCostsForDate(userId: Int, dateFrom: Long, dateTill: Long) : Double?
     @Delete(entity = Costs::class)
     suspend fun deleteCosts(costs: Costs)
 
@@ -45,8 +45,8 @@ interface FinanceDao {
     fun showIncomeSources() : Flow<List<SourceIncome?>>
     @Query("SELECT * FROM income WHERE incomeUserId=:userId ORDER BY incomeDate DESC LIMIT 10")
     fun showTenIncome(userId: Int) : Flow<List<Income?>>
-    @Query("SELECT SUM(incomeSum) FROM income WHERE (incomeUserId=:userId AND incomeDate=:date)")
-    suspend fun showIncomeForDate(userId: Int, date: Long) : Double?
+    @Query("SELECT SUM(incomeSum) FROM income WHERE (incomeUserId=:userId AND incomeDate BETWEEN :dateFrom AND :dateTill)")
+    suspend fun showIncomeForDate(userId: Int, dateFrom: Long, dateTill: Long) : Double?
     @Delete(entity = Income::class)
     suspend fun deleteIncome(income: Income)
 }

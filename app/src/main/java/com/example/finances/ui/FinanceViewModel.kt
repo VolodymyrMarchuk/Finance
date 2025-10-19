@@ -2,8 +2,6 @@ package com.example.finances.ui
 
 import android.util.Log
 import androidx.compose.runtime.asDoubleState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,8 +9,6 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
 import com.example.finances.data.Costs
 import com.example.finances.data.FinanceDBRepository
 import com.example.finances.data.Income
@@ -22,31 +18,17 @@ import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
 import com.example.finances.ui.screens.SnackbarController
 import com.example.finances.ui.screens.SnackbarEvent
-import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toJavaInstant
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
-import kotlin.String
 
 
 data class UserCurrent(
@@ -76,16 +58,44 @@ class FinanceViewModel(
     private val today = LocalDate.now()
 
     //Convert Long->Date to String->Date ----------------------------------------------------------
-    fun convertDateLongToString(selectedDate: Long) : String {
+    fun convertDateLongToString(selectedDate: Long): String {
         val date = Date(selectedDate)
         val formattedDate = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
         return formattedDate
     }
 
-    fun convertLocalDateToLong(selectionDate: LocalDate) : Long {
-        val zoneId = TimeZone.of("UTC")
-        val epochMillis = selectionDate.atStartOfDayIn(zoneId).toJavaInstant().toEpochMilli()
+    fun convertLocalDateToLong(selectionDate: LocalDate): Long {
+        val zoneId = ZoneId.of("UTC")
+        val epochMillis = selectionDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
         return epochMillis
+    }
+
+    private fun dateFrom(periodId: Int) = when (periodId) {
+        1 -> {
+            val firstDayMonth = today.withDayOfMonth(1)
+            convertLocalDateToLong(firstDayMonth)
+        }
+        2 -> {
+            val firstDayYear = today.withDayOfYear(1)
+            convertLocalDateToLong(firstDayYear)
+        }
+        else -> {
+            convertLocalDateToLong(today)
+        }
+    }
+
+    private fun dateTill(periodId: Int) = when (periodId) {
+        1 -> {
+            val lastDayMonth = today.withDayOfMonth(today.lengthOfMonth())
+            convertLocalDateToLong(lastDayMonth)
+        }
+        2 -> {
+            val lastDayYear = today.withDayOfYear(today.lengthOfYear())
+            convertLocalDateToLong(lastDayYear)
+        }
+        else -> {
+            convertLocalDateToLong(today)
+        }
     }
 
     //---------------------------------------------------------USER--------------------------------
@@ -214,10 +224,11 @@ class FinanceViewModel(
         val lastTenCosts = financeDBRepository.tenCosts(userId)
         return lastTenCosts
     }
-    fun showForDateCosts(userId: Int) {
-        val date = convertLocalDateToLong(today)
+    fun showForDateCosts(userId: Int, periodId: Int) {
+        val dateFrom = dateFrom(periodId)
+        val dateTill = dateTill(periodId)
         viewModelScope.launch {
-            _totalCosts.value = financeDBRepository.forDateCosts(userId, date)
+            _totalCosts.value = financeDBRepository.forDateCosts(userId, dateFrom, dateTill)
         }
     }
     fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
@@ -271,10 +282,11 @@ class FinanceViewModel(
         val lastTenIncome = financeDBRepository.tenIncome(userId)
         return lastTenIncome
     }
-    fun showForDateIncome(userId: Int) {
-        val date = convertLocalDateToLong(today)
+    fun showForDateIncome(userId: Int, periodId: Int) {
+        val dateFrom = dateFrom(periodId)
+        val dateTill = dateTill(periodId)
         viewModelScope.launch {
-            _totalIncome.value = financeDBRepository.forDateIncome(userId, date)
+            _totalIncome.value = financeDBRepository.forDateIncome(userId, dateFrom, dateTill)
         }
     }
     fun addNewIncomeSource(newIncomeSource: String) = viewModelScope.launch {

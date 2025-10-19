@@ -125,9 +125,9 @@ fun FinanceApp(
                         tryAgain = {},
                         goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
                         goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)},
-                        setData = {
-                            viewModel.showForDateIncome(currentUser!!.userId)
-                            viewModel.showForDateCosts(currentUser!!.userId)
+                        setData = {periodId->
+                            viewModel.showForDateIncome(currentUser!!.userId, periodId)
+                            viewModel.showForDateCosts(currentUser!!.userId, periodId)
                         },
                         costsSum = totalCosts,
                         incomeSum = totalIncome
@@ -166,9 +166,9 @@ fun FinanceApp(
                     tryAgain = {financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)},
                     goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
                     goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)},
-                    setData = {
-                        viewModel.showForDateIncome(currentUser!!.userId)
-                        viewModel.showForDateCosts(currentUser!!.userId)
+                    setData = {periodId->
+                        viewModel.showForDateIncome(currentUser!!.userId, periodId)
+                        viewModel.showForDateCosts(currentUser!!.userId, periodId)
                               },
                     costsSum = totalCosts,
                     incomeSum = totalIncome

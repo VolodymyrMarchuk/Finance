@@ -1,15 +1,14 @@
 package com.example.finances.ui.screens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -23,7 +22,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,14 +40,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.finances.R
-import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
 import com.example.finances.ui.FinanceViewModel
 import com.example.finances.ui.theme.FinancesTheme
 import kotlinx.coroutines.launch
 
 
-enum class ScreenManager(@StringRes val title: Int) {
+enum class ScreenManager(@param:StringRes val title: Int) {
     FINANCE_START_SCREEN(title = R.string.start_screen),
     FINANCE_LOGIN_SCREEN(title = R.string.login_screen),
     FINANCE_REGISTER_SCREEN(title = R.string.reg_screen),
@@ -63,8 +61,11 @@ enum class ScreenManager(@StringRes val title: Int) {
 fun FinanceApp(
     financeNavHostController: NavHostController = rememberNavController(),
     viewModel: FinanceViewModel = viewModel(factory = FinanceViewModel.factory),
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
+    val totalIncome by viewModel.totalIncome
+    val totalCosts by viewModel.totalCosts
+
     val listCostsSources by viewModel.showAllCostsSources().collectAsState(emptyList())
     val listIncomeSources by viewModel.showAllIncomeSources().collectAsState(emptyList())
     val backStackEntry by financeNavHostController.currentBackStackEntryAsState()
@@ -121,15 +122,16 @@ fun FinanceApp(
                 if (currentUser != null) {
                     CurrentUserScreen(
                         currentUser,
-                        logOut = {userId->
-                            if(userId != null) {
-                                viewModel.userOffline(userId)
-                                financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
-                            }
-                        },
                         tryAgain = {},
                         goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
-                        goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)})
+                        goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)},
+                        setData = {
+                            viewModel.showForDateIncome(currentUser!!.userId)
+                            viewModel.showForDateCosts(currentUser!!.userId)
+                        },
+                        costsSum = totalCosts,
+                        incomeSum = totalIncome
+                        )
                 } else {
                 StartScreen(
                     onLoginClick = { financeNavHostController.navigate(ScreenManager.FINANCE_LOGIN_SCREEN.name) },
@@ -161,16 +163,16 @@ fun FinanceApp(
             composable(route = ScreenManager.FINANCE_CURRENTUSER_SCREEN.name) {
                 CurrentUserScreen(
                     currentUser,
-                    logOut = {userId->
-                        if(userId != null) {
-                            viewModel.userOffline(userId)
-                            financeNavHostController.navigate(route = ScreenManager.FINANCE_START_SCREEN.name)
-                        }
-                    },
                     tryAgain = {financeNavHostController.navigate(ScreenManager.FINANCE_START_SCREEN.name)},
                     goCostsScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_COSTS_SCREEN.name)},
-                    goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)}
-                    )
+                    goIncomeScreen = {financeNavHostController.navigate(ScreenManager.FINANCE_INCOME_SCREEN.name)},
+                    setData = {
+                        viewModel.showForDateIncome(currentUser!!.userId)
+                        viewModel.showForDateCosts(currentUser!!.userId)
+                              },
+                    costsSum = totalCosts,
+                    incomeSum = totalIncome
+                )
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
                 UserUpdateScreen(currentUser, onUpdate = {userId, userLogin, userPassword, userName, userSurname, userPhone, userMail ->
@@ -263,7 +265,7 @@ fun FinanceAppBar(
             if(canNavigateBack) {
                 IconButton(onClick = navigateUp) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back button"
                     )
                 }
@@ -275,7 +277,7 @@ fun FinanceAppBar(
                     onClick = {}
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.List,
+                        imageVector = Icons.AutoMirrored.Filled.List,
                         contentDescription = "List or Grid"
                     )
                 }

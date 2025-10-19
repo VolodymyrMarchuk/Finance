@@ -1,17 +1,16 @@
 package com.example.finances.ui.screens
 
-import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Warning
@@ -35,26 +34,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.yml.charts.common.model.PlotType
+import co.yml.charts.ui.piechart.charts.PieChart
+import co.yml.charts.ui.piechart.models.PieChartConfig
+import co.yml.charts.ui.piechart.models.PieChartData
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
-import io.github.boguszpawlowski.composecalendar.SelectableCalendar
-import io.github.boguszpawlowski.composecalendar.StaticCalendar
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
+import kotlinx.datetime.LocalDate
 
 
 @Composable
 fun CurrentUserScreen(
     currentUser: Users?,
-    logOut: (Int?) -> Unit,
+    costsSum: Double,
+    incomeSum: Double,
     tryAgain: () -> Unit,
     goCostsScreen: () -> Unit,
-    goIncomeScreen: () -> Unit
+    goIncomeScreen: () -> Unit,
+    setData: () -> Unit
 ) {
-//    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopStart
     ) {
         if(currentUser != null) {
+
             Column(
                 modifier = Modifier.fillMaxWidth().padding(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -145,28 +150,7 @@ fun CurrentUserScreen(
                         }
                     }
                 }
-                if (currentUser?.userId != null) {
-                    OutlinedButton(
-                        onClick = { logOut(currentUser.userId) },
-                        modifier = Modifier.padding(top = 15.dp)
-                    ) {
-                        Text(text = "LogOut")
-                    }
-                }
-                SimpleTabs()
-//            StaticCalendar()
-//            Button(onClick = {
-//                Toast.makeText(context, "Test message", Toast.LENGTH_SHORT).show()
-//            }) {
-//                Text(text = "click me!")
-//            }
-//
-//
-//
-//            Text(
-//                text = LocalDate.now().month.toString()
-//
-//            )
+                SimpleTabs(incomeSum = incomeSum, costsSum = costsSum, setData = setData)
             }
         } else {
             Column(
@@ -215,8 +199,15 @@ fun CurrentUserScreen(
 
 
 @Composable
-fun SimpleTabs() {
-    val tabs = listOf("Day", "Month", "Year")
+fun SimpleTabs(
+    incomeSum: Double,
+    costsSum: Double,
+    setData: () -> Unit
+) {
+    val localDate = LocalDate.now()
+    val tabs = listOf("Day\n${localDate.dayOfMonth}",
+        "Month\n${localDate.month}",
+        "Year\n${localDate.year}")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     Column {
@@ -225,37 +216,74 @@ fun SimpleTabs() {
                 Tab(
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
-                    text = { Text(title) },
-                    icon = { Icon(Icons.Default.Search, contentDescription = null) }
+                    text = {Text(title)}
                 )
             }
         }
 
         when (selectedTabIndex) {
-            0 -> Text("Welcome to Home")
-            1 -> Text("This is your Profile")
-            2 -> Text("Adjust your Settings")
+            0 -> { Text("Budget in current day")
+                setData()
+                Saldo(costsSum, incomeSum)
+            }
+            1 -> Text("Budget in current month")
+            2 -> Text("Budget in current year")
         }
     }
 }
 
 
+@Composable
+fun Saldo(
+    costsSum: Double,
+    incomeSum: Double
+) {
+    val pieChartData = PieChartData(
+        slices = listOf(
+            PieChartData.Slice("Costs", costsSum.toFloat(), Color(0xFF009688)),
+            PieChartData.Slice("Income", incomeSum.toFloat(), Color(0xFF2196F3))
+        ), plotType = PlotType.Pie
+    )
+    val pieChartConfig = PieChartConfig(
+        isAnimationEnable = true,
+        showSliceLabels = true,
+        animationDuration = 1500,
+
+    )
+    PieChart(
+        modifier = Modifier
+            .width(400.dp)
+            .height(400.dp),
+        pieChartData,
+        pieChartConfig
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable
-fun CurrentUserScreenPreview() {
+fun SaldoDayPreview() {
     FinancesTheme {
-        CurrentUserScreen(currentUser = Users(
-            0,
-            "Morfey",
-            "currentPassword",
-            "Volodymyr",
-            "Marchuk",
-            "0674104054",
-            "vvmarchuk1984@gmail.com"
-        ), logOut = {}, tryAgain = {}, goCostsScreen = {}, goIncomeScreen = {})
+        Saldo(costsSum = 10.0, incomeSum = 22.0)
     }
 }
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun CurrentUserScreenPreview() {
+//    FinancesTheme {
+//        CurrentUserScreen(currentUser = Users(
+//            0,
+//            "Morfey",
+//            "currentPassword",
+//            "Volodymyr",
+//            "Marchuk",
+//            "0674104054",
+//            "vvmarchuk1984@gmail.com"
+//        ), tryAgain = {}, goCostsScreen = {}, goIncomeScreen = {})
+//    }
+//}
 
 //@Preview(showBackground = true)
 //@Composable

@@ -14,6 +14,7 @@ navigationCompose = "2.9.4"
 dataStore = "1.1.7"
 composeCalendar = "1.4.0"
 kotlinDateTime = "1.4.0"
+ychartsVersion = "2.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-datastore = {module = "androidx.datastore:datastore-preferences", version.ref = "dataStore"}
 composecalendar = {module = "io.github.boguszpawlowski.composecalendar:composecalendar", version.ref = "composeCalendar"}
 kotlinx-datetime = {module = "io.github.boguszpawlowski.composecalendar:kotlinx-datetime", version.ref = "kotlinDateTime" }
+ycharts = {module = "co.yml:ycharts", version.ref = "ychartsVersion"}
 
 
 

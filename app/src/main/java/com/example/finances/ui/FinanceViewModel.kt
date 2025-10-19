@@ -1,8 +1,10 @@
 package com.example.finances.ui
 
 import android.util.Log
+import androidx.compose.runtime.asDoubleState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -20,6 +22,10 @@ import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
 import com.example.finances.ui.screens.SnackbarController
 import com.example.finances.ui.screens.SnackbarEvent
+import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,9 +34,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toJavaInstant
 import java.text.SimpleDateFormat
+import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
 import kotlin.String
@@ -60,12 +73,19 @@ class FinanceViewModel(
 
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
+    private val today = LocalDate.now()
 
     //Convert Long->Date to String->Date ----------------------------------------------------------
     fun convertDateLongToString(selectedDate: Long) : String {
         val date = Date(selectedDate)
         val formattedDate = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
         return formattedDate
+    }
+
+    fun convertLocalDateToLong(selectionDate: LocalDate) : Long {
+        val zoneId = TimeZone.of("UTC")
+        val epochMillis = selectionDate.atStartOfDayIn(zoneId).toJavaInstant().toEpochMilli()
+        return epochMillis
     }
 
     //---------------------------------------------------------USER--------------------------------
@@ -164,6 +184,8 @@ class FinanceViewModel(
 
 
     // -------------------------------------------------------- COSTS -----------------------------
+    private val _totalCosts = mutableStateOf(0.0)
+    val totalCosts = _totalCosts.asDoubleState()
     fun addCosts(
         userId: Int,
         costsSource: Int,
@@ -192,6 +214,12 @@ class FinanceViewModel(
         val lastTenCosts = financeDBRepository.tenCosts(userId)
         return lastTenCosts
     }
+    fun showForDateCosts(userId: Int) {
+        val date = convertLocalDateToLong(today)
+        viewModelScope.launch {
+            _totalCosts.value = financeDBRepository.forDateCosts(userId, date)
+        }
+    }
     fun addNewCostsSource(newCostsSource: String) = viewModelScope.launch {
         val insertItem = sourceCosts?.copy(
             sourceCostsName = newCostsSource.replaceFirstChar { it.uppercase() }
@@ -213,6 +241,8 @@ class FinanceViewModel(
     }
 
     // --------------------------------------------------------INCOME-------------------------------
+    private val _totalIncome = mutableStateOf(0.0)
+    val totalIncome = _totalIncome.asDoubleState()
     fun addIncome(
         userId: Int,
         incomeSource: Int,
@@ -240,6 +270,12 @@ class FinanceViewModel(
     fun showLastTenIncome(userId: Int) : Flow<List<Income?>> {
         val lastTenIncome = financeDBRepository.tenIncome(userId)
         return lastTenIncome
+    }
+    fun showForDateIncome(userId: Int) {
+        val date = convertLocalDateToLong(today)
+        viewModelScope.launch {
+            _totalIncome.value = financeDBRepository.forDateIncome(userId, date)
+        }
     }
     fun addNewIncomeSource(newIncomeSource: String) = viewModelScope.launch {
         val insertItem = sourceIncome?.copy(

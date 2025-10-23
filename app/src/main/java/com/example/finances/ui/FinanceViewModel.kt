@@ -10,10 +10,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.finances.data.Costs
+import com.example.finances.data.DetailedForDate
 import com.example.finances.data.FinanceDBRepository
 import com.example.finances.data.Income
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.SourceIncome
+import com.example.finances.data.StateTypeAndPeriod
 import com.example.finances.data.Users
 import com.example.finances.ui.screens.SnackbarAction
 import com.example.finances.ui.screens.SnackbarController
@@ -21,11 +23,11 @@ import com.example.finances.ui.screens.SnackbarEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
@@ -55,6 +57,10 @@ class FinanceViewModel(
 
     private val _currentuser = MutableStateFlow(UserCurrent())
     val currentUser = _currentuser.asStateFlow()
+
+    private var _typeAndPeriod = MutableStateFlow(StateTypeAndPeriod())
+    val typeAndPeriod = _typeAndPeriod.asStateFlow()
+
     private val today = LocalDate.now()
 
     //Convert Long->Date to String->Date ----------------------------------------------------------
@@ -95,6 +101,15 @@ class FinanceViewModel(
         }
         else -> {
             convertLocalDateToLong(today)
+        }
+    }
+
+    fun saveTypeAndPeriod(type: String, period: Int) {
+        _typeAndPeriod.update { newState->
+            newState.copy(
+                type = type,
+                period = period
+            )
         }
     }
 
@@ -308,7 +323,19 @@ class FinanceViewModel(
     fun deleteIncome(income: Income) = viewModelScope.launch {
         financeDBRepository.delIncome(income)
     }
-    //---------------------------------------------------------------------------------------------
+
+    // -------------------------------------------------------Budget detailed-----------------------
+    fun showBudgetDetailed(userId: Int, type: String, periodId: Int) : Flow<List<DetailedForDate>> {
+        val dateFrom = dateFrom(periodId)
+        val dateTill = dateTill(periodId)
+        var detailedForDate: Flow<List<DetailedForDate>> = flowOf(listOf())
+        when (type) {
+            "Costs" -> { detailedForDate = financeDBRepository.forDateCostsDetailed(userId, dateFrom, dateTill) }
+            "Income" -> { detailedForDate = financeDBRepository.forDateIncomeDetailed(userId, dateFrom, dateTill) }
+        }
+        return detailedForDate
+    }
+    // ---------------------------------------------------------------------------------------------
 
 
     companion object {

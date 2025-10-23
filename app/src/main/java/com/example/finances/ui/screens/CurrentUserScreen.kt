@@ -1,6 +1,5 @@
 package com.example.finances.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +52,8 @@ fun CurrentUserScreen(
     tryAgain: () -> Unit,
     goCostsScreen: () -> Unit,
     goIncomeScreen: () -> Unit,
-    setData: (Int) -> Unit
+    setData: (Int) -> Unit,
+    onBudgetSliceClick: (String, Int) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -151,7 +151,12 @@ fun CurrentUserScreen(
                         }
                     }
                 }
-                SimpleTabs(incomeSum = incomeSum, costsSum = costsSum, setData = setData)
+                SimpleTabs(
+                    incomeSum = incomeSum,
+                    costsSum = costsSum,
+                    setData = setData,
+                    onBudgetSliceClick = onBudgetSliceClick
+                    )
             }
         } else {
             Column(
@@ -203,7 +208,8 @@ fun CurrentUserScreen(
 fun SimpleTabs(
     incomeSum: Double,
     costsSum: Double,
-    setData: (id:Int) -> Unit
+    setData: (id:Int) -> Unit,
+    onBudgetSliceClick: (String, Int) -> Unit
 ) {
     val localDate = LocalDate.now()
     val tabs = listOf("Day\n${localDate.dayOfMonth}",
@@ -221,19 +227,24 @@ fun SimpleTabs(
                 )
             }
         }
-        Log.i("Charts->", "costs = $costsSum\nincom = $incomeSum")
         when (selectedTabIndex) {
-            0 -> { Text("Budget in current day")
+            0 -> { Text("Budget on current day -> ${incomeSum-costsSum} UAH")
                 setData(0)
-                Saldo(costsSum, incomeSum)
+                Saldo(costsSum, incomeSum, onBudgetSliceClick = {
+                    onBudgetSliceClick(it, 0)
+                })
             }
-            1 -> { Text("Budget in current month")
+            1 -> { Text("Budget in current month -> ${incomeSum-costsSum} UAH")
                 setData(1)
-                Saldo(costsSum, incomeSum)
+                Saldo(costsSum, incomeSum, onBudgetSliceClick = {
+                    onBudgetSliceClick(it, 1)
+                })
             }
-            2 -> { Text("Budget in current year")
+            2 -> { Text("Budget in current year -> ${incomeSum-costsSum} UAH")
                 setData(2)
-                Saldo(costsSum, incomeSum)
+                Saldo(costsSum, incomeSum, onBudgetSliceClick = {
+                    onBudgetSliceClick(it, 2)
+                })
             }
         }
     }
@@ -243,7 +254,8 @@ fun SimpleTabs(
 @Composable
 fun Saldo(
     costsSum: Double,
-    incomeSum: Double
+    incomeSum: Double,
+    onBudgetSliceClick: (String) -> Unit
 ) {
     val pieChartData = PieChartData(
         slices = listOf(
@@ -255,6 +267,7 @@ fun Saldo(
         isAnimationEnable = true,
         showSliceLabels = true,
         animationDuration = 1500,
+        backgroundColor = Color.Transparent
 
     )
     PieChart(
@@ -262,7 +275,10 @@ fun Saldo(
             .width(400.dp)
             .height(400.dp),
         pieChartData,
-        pieChartConfig
+        pieChartConfig,
+        onSliceClick = {
+            onBudgetSliceClick(it.label)
+        }
     )
 }
 
@@ -271,7 +287,7 @@ fun Saldo(
 @Composable
 fun SaldoDayPreview() {
     FinancesTheme {
-        Saldo(costsSum = 10.0, incomeSum = 22.0)
+        Saldo(costsSum = 10.0, incomeSum = 22.0, onBudgetSliceClick = {})
     }
 }
 

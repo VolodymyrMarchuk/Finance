@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,9 +41,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.finances.R
+import com.example.finances.data.DetailedForDate
 import com.example.finances.data.Users
 import com.example.finances.ui.FinanceViewModel
 import com.example.finances.ui.theme.FinancesTheme
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 
@@ -53,7 +56,8 @@ enum class ScreenManager(@param:StringRes val title: Int) {
     FINANCE_CURRENTUSER_SCREEN(title = R.string.cabinet_screen),
     FINANCE_UPDATEUSER_SCREEN(title = R.string.update_screen),
     FINANCE_COSTS_SCREEN(title = R.string.costs_screen),
-    FINANCE_INCOME_SCREEN(title = R.string.income_screen)
+    FINANCE_INCOME_SCREEN(title = R.string.income_screen),
+    FINANCE_DETAILED_SCREEN(title = R.string.detailed_screen)
 }
 
 @SuppressLint("RememberReturnType")
@@ -65,6 +69,8 @@ fun FinanceApp(
 ) {
     val totalIncome by viewModel.totalIncome
     val totalCosts by viewModel.totalCosts
+    val typeAndPeriod by viewModel.typeAndPeriod.collectAsState()
+
 
     val listCostsSources by viewModel.showAllCostsSources().collectAsState(emptyList())
     val listIncomeSources by viewModel.showAllIncomeSources().collectAsState(emptyList())
@@ -130,7 +136,11 @@ fun FinanceApp(
                             viewModel.showForDateCosts(currentUser!!.userId, periodId)
                         },
                         costsSum = totalCosts,
-                        incomeSum = totalIncome
+                        incomeSum = totalIncome,
+                        onBudgetSliceClick = {type, period->
+                            viewModel.saveTypeAndPeriod(type = type, period = period)
+                            financeNavHostController.navigate(ScreenManager.FINANCE_DETAILED_SCREEN.name)
+                        }
                         )
                 } else {
                 StartScreen(
@@ -171,7 +181,11 @@ fun FinanceApp(
                         viewModel.showForDateCosts(currentUser!!.userId, periodId)
                               },
                     costsSum = totalCosts,
-                    incomeSum = totalIncome
+                    incomeSum = totalIncome,
+                    onBudgetSliceClick = {type, period->
+                        viewModel.saveTypeAndPeriod(type = type, period = period)
+                        financeNavHostController.navigate(ScreenManager.FINANCE_DETAILED_SCREEN.name)
+                    }
                 )
             }
             composable(route = ScreenManager.FINANCE_UPDATEUSER_SCREEN.name) {
@@ -239,9 +253,22 @@ fun FinanceApp(
                     }
                 )
             }
+            composable(route = ScreenManager.FINANCE_DETAILED_SCREEN.name) {
+                DetailedScreen(
+                    detailedList = viewModel.showBudgetDetailed(
+                        userId = currentUser!!.userId,
+                        type = typeAndPeriod.type,
+                        periodId = typeAndPeriod.period).collectAsState(initial = emptyList()).value,
+                    type = typeAndPeriod.type,
+                    period = typeAndPeriod.period,
+                    sourceCosts = listCostsSources,
+                    sourceIncome = listIncomeSources
+                    )
+            }
         }
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

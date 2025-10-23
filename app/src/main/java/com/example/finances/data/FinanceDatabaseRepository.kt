@@ -17,6 +17,7 @@ interface FinanceDBRepository {
     fun allCostsSources() : Flow<List<SourceCosts?>>
     fun tenCosts(userId: Int) : Flow<List<Costs?>>
     suspend fun forDateCosts(userId: Int, dateFrom: Long, dateTill: Long) : Double
+    fun forDateCostsDetailed(userId: Int, dateFrom: Long, dateTill: Long) : Flow<List<DetailedForDate>>
     suspend fun addCosts(newCosts: Costs)
     suspend fun delCosts(costs: Costs)
 
@@ -25,6 +26,7 @@ interface FinanceDBRepository {
     fun allIncomeSources() : Flow<List<SourceIncome?>>
     fun tenIncome(userId: Int) : Flow<List<Income?>>
     suspend fun forDateIncome(userId: Int, dateFrom: Long, dateTill: Long) : Double
+    fun forDateIncomeDetailed(userId: Int, dateFrom: Long, dateTill: Long) : Flow<List<DetailedForDate>>
     suspend fun addIncome(newIncome: Income)
     suspend fun delIncome(income: Income)
 }
@@ -50,6 +52,11 @@ class FinanceDatabaseRepository(private val financeDao: FinanceDao): FinanceDBRe
     override fun allCostsSources(): Flow<List<SourceCosts?>> = financeDao.showCostsSources()
     override fun tenCosts(userId: Int): Flow<List<Costs?>> = financeDao.showTenCosts(userId)
     override suspend fun forDateCosts(userId: Int, dateFrom: Long, dateTill: Long): Double = financeDao.showCostsForDate(userId, dateFrom, dateTill) ?: 0.0
+    override fun forDateCostsDetailed(
+        userId: Int,
+        dateFrom: Long,
+        dateTill: Long
+    ): Flow<List<DetailedForDate>> = financeDao.showCostsDetailedForDate(userId, dateFrom, dateTill)
     override suspend fun addCosts(newCosts: Costs) = financeDao.addCosts(newCosts)
     override suspend fun delCosts(costs: Costs) = financeDao.deleteCosts(costs)
 
@@ -58,6 +65,11 @@ class FinanceDatabaseRepository(private val financeDao: FinanceDao): FinanceDBRe
     override fun allIncomeSources() : Flow<List<SourceIncome?>> = financeDao.showIncomeSources()
     override fun tenIncome(userId: Int) : Flow<List<Income?>> = financeDao.showTenIncome(userId)
     override suspend fun forDateIncome(userId: Int, dateFrom: Long, dateTill: Long) : Double = financeDao.showIncomeForDate(userId, dateFrom, dateTill) ?: 0.0
+    override fun forDateIncomeDetailed(
+        userId: Int,
+        dateFrom: Long,
+        dateTill: Long
+    ): Flow<List<DetailedForDate>> = financeDao.showIncomeDetailedForDate(userId, dateFrom, dateTill)
     override suspend fun addIncome(newIncome: Income) = financeDao.addIncome(newIncome)
     override suspend fun delIncome(income: Income) = financeDao.deleteIncome(income)
 }

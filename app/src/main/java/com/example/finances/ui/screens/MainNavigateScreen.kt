@@ -262,7 +262,10 @@ fun FinanceApp(
                     type = typeAndPeriod.type,
                     period = typeAndPeriod.period,
                     sourceCosts = listCostsSources,
-                    sourceIncome = listIncomeSources
+                    sourceIncome = listIncomeSources,
+                    saveTypeAndPeriod = {type, period ->
+                        viewModel.saveTypeAndPeriod(type, period)
+                    }
                     )
             }
         }

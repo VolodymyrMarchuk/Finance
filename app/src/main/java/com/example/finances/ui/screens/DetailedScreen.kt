@@ -41,7 +41,8 @@ fun DetailedScreen(
     sourceCosts: List<SourceCosts?>,
     sourceIncome: List<SourceIncome?>,
     type: String,
-    period: Int
+    period: Int,
+    saveTypeAndPeriod: (String, Int) -> Unit
 ) {
     Column {
 
@@ -50,7 +51,9 @@ fun DetailedScreen(
             period = period,
             sourceCosts = sourceCosts,
             sourceIncome = sourceIncome,
-            detailedList = detailedList)
+            detailedList = detailedList,
+            saveTypeAndPeriod = saveTypeAndPeriod
+            )
     }
 }
 
@@ -62,6 +65,7 @@ fun DetailedSimpleTabs(
     detailedList: List<DetailedForDate>,
     sourceCosts: List<SourceCosts?>,
     sourceIncome: List<SourceIncome?>,
+    saveTypeAndPeriod: (String, Int) -> Unit
 ) {
     val localDate = LocalDate.now()
     val tabs = listOf("Day\n${localDate.dayOfMonth}",
@@ -81,6 +85,7 @@ fun DetailedSimpleTabs(
         }
         when (selectedTabIndex) {
             0 -> {
+                saveTypeAndPeriod(type, 0)
                 Text("Detailed on current day")
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(
@@ -93,6 +98,7 @@ fun DetailedSimpleTabs(
             }
 
             1 -> {
+                saveTypeAndPeriod(type, 1)
                 Text("Detailed in current month")
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(
@@ -105,6 +111,7 @@ fun DetailedSimpleTabs(
             }
 
             2 -> {
+                saveTypeAndPeriod(type, 2)
                 Text("Detailed in current year")
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(

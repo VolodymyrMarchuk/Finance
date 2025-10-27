@@ -35,7 +35,9 @@ interface FinanceDao {
     suspend fun showCostsForDate(userId: Int, dateFrom: Long, dateTill: Long) : Double?
     @Delete(entity = Costs::class)
     suspend fun deleteCosts(costs: Costs)
-    @Query("SELECT costsSourceId AS sourceId, SUM(costsSum) AS sumForSource  FROM costs WHERE (costsUserId=:userId AND costsDate BETWEEN :dateFrom AND :dateTill) GROUP BY costsSourceId")
+    @Query("SELECT costsSourceId AS sourceId, SUM(costsSum) AS sumForSource  " +
+            "FROM costs WHERE (costsUserId=:userId AND costsDate BETWEEN :dateFrom AND :dateTill) " +
+            "GROUP BY costsSourceId ORDER BY sumForSource")
     fun showCostsDetailedForDate(userId: Int, dateFrom: Long, dateTill: Long) : Flow<List<DetailedForDate>>
 
     //----------------------------------------------------INCOME-----------------------------------
@@ -49,7 +51,9 @@ interface FinanceDao {
     fun showTenIncome(userId: Int) : Flow<List<Income?>>
     @Query("SELECT SUM(incomeSum) FROM income WHERE (incomeUserId=:userId AND incomeDate BETWEEN :dateFrom AND :dateTill)")
     suspend fun showIncomeForDate(userId: Int, dateFrom: Long, dateTill: Long) : Double?
-    @Query("SELECT incomeSourceId AS sourceId, SUM(incomeSum) AS sumForSource  FROM income WHERE (incomeUserId=:userId AND incomeDate BETWEEN :dateFrom AND :dateTill) GROUP BY incomeSourceId")
+    @Query("SELECT incomeSourceId AS sourceId, SUM(incomeSum) AS sumForSource " +
+            "FROM income WHERE (incomeUserId=:userId AND incomeDate BETWEEN :dateFrom AND :dateTill) " +
+            "GROUP BY incomeSourceId ORDER BY sumForSource")
     fun showIncomeDetailedForDate(userId: Int, dateFrom: Long, dateTill: Long) : Flow<List<DetailedForDate>>
     @Delete(entity = Income::class)
     suspend fun deleteIncome(income: Income)

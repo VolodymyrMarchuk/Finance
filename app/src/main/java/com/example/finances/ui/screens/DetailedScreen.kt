@@ -1,12 +1,13 @@
 package com.example.finances.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Tab
@@ -26,7 +27,6 @@ import co.yml.charts.common.model.PlotType
 import co.yml.charts.ui.piechart.charts.PieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
-import com.example.finances.data.DetailedBudget
 import com.example.finances.data.DetailedForDate
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.SourceIncome
@@ -127,6 +127,7 @@ fun DetailedSimpleTabs(
 }
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun BudgetDetailed(
     detailedList: List<DetailedForDate>,
@@ -174,7 +175,9 @@ fun BudgetDetailed(
     )
     Column {
         Box(
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier
+                .fillMaxHeight(0.3f)
+                .padding(10.dp)
         ) {
             Column {
                 Text(
@@ -192,19 +195,21 @@ fun BudgetDetailed(
                                     .fillMaxWidth(0.3f)
                                     .padding(start = 15.dp)
                                 )
-                            Text(text = "${it.sumForSource}")
+                            Text(text = String.format("%.2f", it.sumForSource))
                         }
                     }
                 }
             }
         }
-        PieChart(
-            modifier = Modifier
-                .width(400.dp)
-                .height(400.dp),
-            pieChartData,
-            pieChartConfig
-        )
+        Box {
+            PieChart(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(5.dp),
+                pieChartData,
+                pieChartConfig
+            )
+        }
     }
 }
 

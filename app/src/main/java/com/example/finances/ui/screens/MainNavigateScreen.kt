@@ -22,10 +22,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,11 +39,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.finances.R
-import com.example.finances.data.DetailedForDate
 import com.example.finances.data.Users
 import com.example.finances.ui.FinanceViewModel
 import com.example.finances.ui.theme.FinancesTheme
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
 
@@ -254,19 +250,22 @@ fun FinanceApp(
                 )
             }
             composable(route = ScreenManager.FINANCE_DETAILED_SCREEN.name) {
-                DetailedScreen(
-                    detailedList = viewModel.showBudgetDetailed(
-                        userId = currentUser!!.userId,
+                currentUser?.let {
+                    DetailedScreen(
+                        detailedList = viewModel.showBudgetDetailed(
+                            userId = it.userId,
+                            type = typeAndPeriod.type,
+                            periodId = typeAndPeriod.period
+                        ).collectAsState(initial = emptyList()).value,
                         type = typeAndPeriod.type,
-                        periodId = typeAndPeriod.period).collectAsState(initial = emptyList()).value,
-                    type = typeAndPeriod.type,
-                    period = typeAndPeriod.period,
-                    sourceCosts = listCostsSources,
-                    sourceIncome = listIncomeSources,
-                    saveTypeAndPeriod = {type, period ->
-                        viewModel.saveTypeAndPeriod(type, period)
-                    }
+                        period = typeAndPeriod.period,
+                        sourceCosts = listCostsSources,
+                        sourceIncome = listIncomeSources,
+                        saveTypeAndPeriod = { type, period ->
+                            viewModel.saveTypeAndPeriod(type, period)
+                        }
                     )
+                }
             }
         }
     }
@@ -317,33 +316,33 @@ fun FinanceAppBar(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AccountCircle, tint = Color.Green,
-                            contentDescription = "User"
+                            contentDescription = stringResource(R.string.user)
                         )
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = {expanded = false}
                         ) {
                             DropdownMenuItem(
-                                text = { Text(text = "Profile") },
+                                text = { Text(text = stringResource(R.string.profile)) },
                                 onClick = {
                                     expanded = false
                                     onUpdate()
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(text = "Settings") },
+                                text = { Text(text = stringResource(R.string.settings)) },
                                 onClick = {
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(text = "Help") },
+                                text = { Text(text = stringResource(R.string.help)) },
                                 onClick = {
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(text = "LogOut") },
+                                text = { Text(text = stringResource(R.string.logout)) },
                                 onClick = {
                                     expanded = false
                                     onLogOut(user.userId)
@@ -365,14 +364,14 @@ fun FinanceAppBar(
                             onDismissRequest = {expanded = false}
                         ) {
                             DropdownMenuItem(
-                                text = { Text(text = "LogIn") },
+                                text = { Text(text = stringResource(R.string.login)) },
                                 onClick = {
                                     expanded = false
                                     onLogIn()
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(text = "Registration") },
+                                text = { Text(text = stringResource(R.string.register)) },
                                 onClick = {
                                     expanded = false
                                     onRegister()

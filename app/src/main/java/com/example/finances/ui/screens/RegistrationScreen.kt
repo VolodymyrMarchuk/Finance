@@ -16,11 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.finances.R
 import com.example.finances.ui.theme.FinancesTheme
 
 
@@ -62,35 +64,35 @@ fun RegistrationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Registration:",
+                    text = stringResource(R.string.register),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
                 OutlinedTextField(
                     value = name,
                     label = {
-                        Text(text = "Name")
+                        Text(text = stringResource(R.string.name))
                     },
                     onValueChange = { name = it }
                 )
                 OutlinedTextField(
                     value = surname,
                     label = {
-                        Text(text = "Surname")
+                        Text(text = stringResource(R.string.surname))
                     },
                     onValueChange = { surname = it }
                 )
                 OutlinedTextField(
                     value = phone,
                     label = {
-                        Text(text = "Mobile")
+                        Text(text = stringResource(R.string.phone))
                     },
                     onValueChange = { phone = it }
                 )
                 OutlinedTextField(
                     value = mail,
                     label = {
-                        Text(text = "Mail")
+                        Text(text = stringResource(R.string.mail))
                     },
                     onValueChange = {
                         mail = it
@@ -103,7 +105,7 @@ fun RegistrationScreen(
                 OutlinedTextField(
                     value = login,
                     label = {
-                        Text(text = "Login")
+                        Text(text = stringResource(R.string.login))
                     },
                     onValueChange = {
                         login = it
@@ -115,7 +117,7 @@ fun RegistrationScreen(
                 OutlinedTextField(
                     value = password,
                     label = {
-                        Text(text = "Password")
+                        Text(text = stringResource(R.string.password))
                     },
                     onValueChange = {
                         password = it
@@ -144,7 +146,7 @@ fun RegistrationScreen(
                         modifier = Modifier.padding(top = 15.dp),
                         enabled = true
                     ) {
-                        Text(text = "Register")
+                        Text(text = stringResource(R.string.register))
                     }
                 } else {
                     OutlinedButton(
@@ -152,7 +154,7 @@ fun RegistrationScreen(
                         modifier = Modifier.padding(top = 15.dp),
                         enabled = false
                     ) {
-                        Text(text = "Register")
+                        Text(text = stringResource(R.string.register))
                     }
                 }
             }

@@ -32,12 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.finances.R
+
 import com.example.finances.data.Costs
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.Users
@@ -86,7 +88,7 @@ fun CostsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "New Costs",
+                        text = stringResource(R.string.new_costs),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -105,20 +107,20 @@ fun CostsScreen(
                         value = newCostsSource,
                         readOnly = true,
                         label = {
-                            Text(text = "Source:")
+                            Text(text = stringResource(R.string.source) + " :")
                         },
                         trailingIcon = {
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = "Search costs source",
+                                    contentDescription = stringResource(R.string.search_costs_source),
                                     modifier = Modifier.clickable(true, onClick = {
                                         expanded = !expanded
                                     })
                                 )
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs source",
+                                    contentDescription = stringResource(R.string.add_costs_source),
                                     modifier = Modifier.clickable(true, onClick = {
                                         showDialog = true
                                         newCostsSource = ""
@@ -168,7 +170,7 @@ fun CostsScreen(
                         value = costsDate,
                         readOnly = true,
                         label = {
-                            Text(text = "Date:")
+                            Text(text = stringResource(R.string.date) + ":")
                         },
                         onValueChange = {
                             costsDate = it
@@ -176,7 +178,7 @@ fun CostsScreen(
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
-                                contentDescription = "Calendar",
+                                contentDescription = stringResource(R.string.calendar) + ":",
                                 modifier = Modifier.clickable(enabled = true, onClick = {
                                     showCalendar = true
                                 })
@@ -186,7 +188,7 @@ fun CostsScreen(
                     OutlinedTextField(
                         value = costsSum.toString(),
                         label = {
-                            Text(text = "Sum:")
+                            Text(text = stringResource(R.string.sum) + ":")
                         },
                         onValueChange = {
                             costsSum = it
@@ -209,9 +211,9 @@ fun CostsScreen(
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs"
+                                    contentDescription = stringResource(R.string.add_costs)
                                 )
-                                Text(text = "Add")
+                                Text(text = stringResource(R.string.add))
                             }
                         }
                     } else {
@@ -223,9 +225,9 @@ fun CostsScreen(
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add costs"
+                                    contentDescription = stringResource(R.string.add_costs)
                                 )
-                                Text(text = "Add")
+                                Text(text = stringResource(R.string.add))
                             }
                         }
                     }
@@ -263,7 +265,7 @@ fun SeeLastTenCosts(
                 modifier = Modifier.padding(top = 10.dp)
             ) {
                 Text(
-                    text = "Last 10 costs",
+                    text = stringResource(R.string.last_10_costs),
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -305,7 +307,7 @@ fun SeeLastTenCosts(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = "Delete costs",
+                                            contentDescription = stringResource(R.string.delete_costs),
                                         )
                                     }
                                 }

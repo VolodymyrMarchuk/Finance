@@ -1,5 +1,6 @@
 package com.example.finances.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.asDoubleState
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.finances.R
 import com.example.finances.data.Costs
 import com.example.finances.data.DetailedForDate
 import com.example.finances.data.FinanceDBRepository
@@ -331,7 +333,9 @@ class FinanceViewModel(
         var detailedForDate: Flow<List<DetailedForDate>> = flowOf(listOf())
         when (type) {
             "Costs" -> { detailedForDate = financeDBRepository.forDateCostsDetailed(userId, dateFrom, dateTill) }
+            "Витрати" -> { detailedForDate = financeDBRepository.forDateCostsDetailed(userId, dateFrom, dateTill) }
             "Income" -> { detailedForDate = financeDBRepository.forDateIncomeDetailed(userId, dateFrom, dateTill) }
+            "Доходи" -> { detailedForDate = financeDBRepository.forDateIncomeDetailed(userId, dateFrom, dateTill) }
         }
         return detailedForDate
     }

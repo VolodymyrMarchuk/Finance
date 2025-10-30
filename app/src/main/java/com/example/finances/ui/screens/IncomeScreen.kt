@@ -32,11 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.finances.R
 import com.example.finances.data.Income
 import com.example.finances.data.SourceIncome
 import com.example.finances.data.Users
@@ -85,7 +87,7 @@ fun IncomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "New Income",
+                        text = stringResource(R.string.new_income),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -104,20 +106,20 @@ fun IncomeScreen(
                         value = newIncomeSource,
                         readOnly = true,
                         label = {
-                            Text(text = "Income:")
+                            Text(text = stringResource(R.string.income))
                         },
                         trailingIcon = {
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Search,
-                                    contentDescription = "Search income source",
+                                    contentDescription = stringResource(R.string.search_income_source),
                                     modifier = Modifier.clickable(true, onClick = {
                                         expanded = !expanded
                                     })
                                 )
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add income source",
+                                    contentDescription = stringResource(R.string.add_income_source),
                                     modifier = Modifier.clickable(true, onClick = {
                                         showDialog = true
                                         newIncomeSource = ""
@@ -167,7 +169,7 @@ fun IncomeScreen(
                         value = incomeDate,
                         readOnly = true,
                         label = {
-                            Text(text = "Date:")
+                            Text(text = stringResource(R.string.date))
                         },
                         onValueChange = {
                             incomeDate = it
@@ -175,7 +177,7 @@ fun IncomeScreen(
                         trailingIcon = {
                             Icon(
                                 imageVector = Icons.Default.DateRange,
-                                contentDescription = "Calendar",
+                                contentDescription = stringResource(R.string.calendar),
                                 modifier = Modifier.clickable(enabled = true, onClick = {
                                     showCalendar = true
                                 })
@@ -185,7 +187,7 @@ fun IncomeScreen(
                     OutlinedTextField(
                         value = incomeSum.toString(),
                         label = {
-                            Text(text = "Sum:")
+                            Text(text = stringResource(R.string.sum) + ":")
                         },
                         onValueChange = {
                             incomeSum = it
@@ -208,9 +210,9 @@ fun IncomeScreen(
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add income"
+                                    contentDescription = stringResource(R.string.add_income)
                                 )
-                                Text(text = "Add")
+                                Text(text = stringResource(R.string.add))
                             }
                         }
                     } else {
@@ -222,7 +224,7 @@ fun IncomeScreen(
                             Row {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add income"
+                                    contentDescription = stringResource(R.string.add_income)
                                 )
                                 Text(text = "Add")
                             }
@@ -262,7 +264,7 @@ fun SeeLastTenIncome(
                 modifier = Modifier.padding(top = 10.dp)
             ) {
                 Text(
-                    text = "Last 10 income",
+                    text = stringResource(R.string.last_10_income),
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -303,7 +305,7 @@ fun SeeLastTenIncome(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Clear,
-                                            contentDescription = "Delete income",
+                                            contentDescription = stringResource(R.string.delete_income),
                                         )
                                     }
                                 }

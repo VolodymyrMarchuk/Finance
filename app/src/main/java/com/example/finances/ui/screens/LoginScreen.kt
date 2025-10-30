@@ -15,12 +15,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.finances.R
 import com.example.finances.ui.theme.FinancesTheme
 
 @Composable
@@ -45,14 +47,14 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "LogIn:",
+                    text = stringResource(R.string.login) + ":",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                     )
                 OutlinedTextField(
                     value = login,
                     label = {
-                        Text(text = "Login")
+                        Text(text = stringResource(R.string.login))
                     },
                     onValueChange = {
                         login = it
@@ -64,7 +66,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = password,
                     label = {
-                        Text(text = "Password")
+                        Text(text = stringResource(R.string.password))
                     },
                     onValueChange = {
                         password = it
@@ -79,7 +81,7 @@ fun LoginScreen(
                         onClick = { userLogin(login, password) },
                         modifier = Modifier.padding(top = 15.dp)
                     ) {
-                        Text(text = "LogIn")
+                        Text(text = stringResource(R.string.login))
                     }
                 } else {
                     OutlinedButton(
@@ -87,7 +89,7 @@ fun LoginScreen(
                         modifier = Modifier.padding(top = 15.dp),
                         enabled = false
                     ) {
-                        Text(text = "LogIn")
+                        Text(text = stringResource(R.string.login))
                     }
                 }
             }

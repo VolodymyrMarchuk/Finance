@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import co.yml.charts.common.model.PlotType
 import co.yml.charts.ui.piechart.charts.PieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
+import com.example.finances.R
 import com.example.finances.data.DetailedForDate
 import com.example.finances.data.SourceCosts
 import com.example.finances.data.SourceIncome
@@ -68,9 +70,9 @@ fun DetailedSimpleTabs(
     saveTypeAndPeriod: (String, Int) -> Unit
 ) {
     val localDate = LocalDate.now()
-    val tabs = listOf("Day\n${localDate.dayOfMonth}",
-        "Month\n${localDate.month}",
-        "Year\n${localDate.year}")
+    val tabs = listOf(stringResource(R.string.day) + " \n${localDate.dayOfMonth}",
+        stringResource(R.string.month) + " \n${localDate.month}",
+        stringResource(R.string.year) + " \n${localDate.year}")
     var selectedTabIndex by remember { mutableIntStateOf(period) }
 
     Column {
@@ -86,7 +88,7 @@ fun DetailedSimpleTabs(
         when (selectedTabIndex) {
             0 -> {
                 saveTypeAndPeriod(type, 0)
-                Text("Detailed on current day")
+                Text(stringResource(R.string.budget_current_detailed) + " " + stringResource(R.string.day))
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(
                         detailedList = detailedList,
@@ -99,7 +101,7 @@ fun DetailedSimpleTabs(
 
             1 -> {
                 saveTypeAndPeriod(type, 1)
-                Text("Detailed in current month")
+                Text(stringResource(R.string.budget_current_detailed) + " " + stringResource(R.string.month))
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(
                         detailedList = detailedList,
@@ -112,7 +114,7 @@ fun DetailedSimpleTabs(
 
             2 -> {
                 saveTypeAndPeriod(type, 2)
-                Text("Detailed in current year")
+                Text(stringResource(R.string.budget_current_detailed) + " " + stringResource(R.string.year))
                 if (detailedList.isNotEmpty()) {
                     BudgetDetailed(
                         detailedList = detailedList,
@@ -136,7 +138,7 @@ fun BudgetDetailed(
     type: String
 ) {
     val setDetailedSource = mutableMapOf(0 to "")
-    if (type == "Costs") {
+    if (type == stringResource(R.string.costs)) {
         for (source in sourceCosts) {
             setDetailedSource[source!!.sourceCostsId] = source.sourceCostsName
         }
@@ -170,9 +172,10 @@ fun BudgetDetailed(
         showSliceLabels = true,
         animationDuration = 1500,
         backgroundColor = Color.Transparent,
-
-
     )
+
+    val sumTotal = remember { detailedList.sumOf { (sourceId, sumForSource) -> sumForSource }}
+
     Column {
         Box(
             modifier = Modifier
@@ -181,7 +184,7 @@ fun BudgetDetailed(
         ) {
             Column {
                 Text(
-                    text = "$type:",
+                    text = "${type} = ${ sumTotal }:",
                     fontWeight = FontWeight.Bold
                     )
                 LazyColumn {
@@ -195,7 +198,7 @@ fun BudgetDetailed(
                                     .fillMaxWidth(0.3f)
                                     .padding(start = 15.dp)
                                 )
-                            Text(text = String.format("%.2f", it.sumForSource))
+                            Text(text = String.format("%.2f", it.sumForSource) + "  (" + String.format("%.1f%%", (it.sumForSource/sumTotal)*100) + ")")
                         }
                     }
                 }

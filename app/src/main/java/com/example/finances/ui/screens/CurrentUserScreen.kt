@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +39,7 @@ import co.yml.charts.common.model.PlotType
 import co.yml.charts.ui.piechart.charts.PieChart
 import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
+import com.example.finances.R
 import com.example.finances.data.Users
 import com.example.finances.ui.theme.FinancesTheme
 import io.github.boguszpawlowski.composecalendar.kotlinxDateTime.now
@@ -105,7 +107,7 @@ fun CurrentUserScreen(
                     ElevatedButton(
                         onClick = goCostsScreen,
                         modifier = Modifier
-                            .fillMaxWidth(0.4f)
+                            .fillMaxWidth(0.5f)
                             .padding(10.dp)
                     ) {
                         Column(
@@ -116,8 +118,8 @@ fun CurrentUserScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Costs",
-                                fontSize = 24.sp,
+                                text = stringResource(R.string.costs),
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Icon(
@@ -140,8 +142,8 @@ fun CurrentUserScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Income",
-                                fontSize = 24.sp,
+                                text = stringResource(R.string.income),
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Icon(
@@ -212,9 +214,9 @@ fun SimpleTabs(
     onBudgetSliceClick: (String, Int) -> Unit
 ) {
     val localDate = LocalDate.now()
-    val tabs = listOf("Day\n${localDate.dayOfMonth}",
-        "Month\n${localDate.month}",
-        "Year\n${localDate.year}")
+    val tabs = listOf(stringResource(R.string.day)+"\n${localDate.dayOfMonth}",
+        stringResource(R.string.month)+"\n${localDate.month}",
+        stringResource(R.string.year)+"\n${localDate.year}")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     Column {
@@ -228,19 +230,28 @@ fun SimpleTabs(
             }
         }
         when (selectedTabIndex) {
-            0 -> { Text("Budget on current day -> ${incomeSum-costsSum} UAH")
+            0 -> {
+                Text(stringResource(R.string.budget_current) +
+                        stringResource(R.string.day) +
+                        " -> " +String.format("%.2f", (incomeSum-costsSum)) + " UAH")
                 setData(0)
                 Saldo(costsSum, incomeSum, onBudgetSliceClick = {
                     onBudgetSliceClick(it, 0)
                 })
             }
-            1 -> { Text("Budget in current month -> ${incomeSum-costsSum} UAH")
+            1 -> {
+                Text(stringResource(R.string.budget_current) +
+                        stringResource(R.string.month) +
+                        " -> " +String.format("%.2f", (incomeSum-costsSum)) + " UAH")
                 setData(1)
                 Saldo(costsSum, incomeSum, onBudgetSliceClick = {
                     onBudgetSliceClick(it, 1)
                 })
             }
-            2 -> { Text("Budget in current year -> ${incomeSum-costsSum} UAH")
+            2 -> {
+                Text(stringResource(R.string.budget_current) +
+                        stringResource(R.string.year) +
+                        " -> " +String.format("%.2f", (incomeSum-costsSum)) + " UAH")
                 setData(2)
                 Saldo(costsSum, incomeSum, onBudgetSliceClick = {
                     onBudgetSliceClick(it, 2)
@@ -259,8 +270,8 @@ fun Saldo(
 ) {
     val pieChartData = PieChartData(
         slices = listOf(
-            PieChartData.Slice("Costs", costsSum.toFloat(), Color(0xFF009688)),
-            PieChartData.Slice("Income", incomeSum.toFloat(), Color(0xFF2196F3))
+            PieChartData.Slice(stringResource(R.string.costs), costsSum.toFloat(), Color(0xFF009688)),
+            PieChartData.Slice(stringResource(R.string.income), incomeSum.toFloat(), Color(0xFF2196F3))
         ), plotType = PlotType.Pie
     )
     val pieChartConfig = PieChartConfig(
@@ -283,13 +294,13 @@ fun Saldo(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun SaldoDayPreview() {
-    FinancesTheme {
-        Saldo(costsSum = 10.0, incomeSum = 22.0, onBudgetSliceClick = {})
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SaldoDayPreview() {
+//    FinancesTheme {
+//        Saldo(costsSum = 10.0, incomeSum = 22.0, onBudgetSliceClick = {})
+//    }
+//}
 
 
 //@Preview(showBackground = true)
@@ -308,10 +319,27 @@ fun SaldoDayPreview() {
 //    }
 //}
 
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrentUserScreenPreview() {
-//    FinancesTheme {
-//        CurrentUserScreen(currentUser = null, logOut = {}, tryAgain = {})
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+fun CurrentUserScreenPreview() {
+    FinancesTheme {
+        CurrentUserScreen(
+            currentUser = Users(
+            0,
+            "Morfey",
+            "currentPassword",
+            "Volodymyr",
+            "Marchuk",
+            "0674104054",
+            "vvmarchuk1984@gmail.com"
+        ),
+            costsSum = 4500.00,
+            incomeSum = 15000.00,
+            tryAgain = {},
+            goCostsScreen = {},
+            goIncomeScreen = {},
+            setData = {},
+            onBudgetSliceClick = {String, Int ->}
+            )
+    }
+}

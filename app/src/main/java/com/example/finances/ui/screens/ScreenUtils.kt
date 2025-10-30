@@ -16,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.example.finances.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,10 +29,10 @@ fun AddSource(
 
     AlertDialog(
         icon = {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+            Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add))
         },
         title = {
-            Text(text = "New Source")
+            Text(text = stringResource(R.string.new_source))
         },
         text = {
             OutlinedTextField(
@@ -49,7 +51,7 @@ fun AddSource(
                         onConfirmation(newSource)
                     }
                 ) {
-                    Text("Create")
+                    Text(stringResource(R.string.create))
                 }
             }
         },
@@ -57,7 +59,7 @@ fun AddSource(
             TextButton(
                 onClick = onDismissRequest
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -83,7 +85,7 @@ fun ChooseDate(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel))
             }
         }
     ) {

@@ -174,7 +174,7 @@ fun BudgetDetailed(
         backgroundColor = Color.Transparent,
     )
 
-    val sumTotal = remember { detailedList.sumOf { (sourceId, sumForSource) -> sumForSource }}
+    val sumTotal = detailedList.sumOf { (sourceId, sumForSource) -> sumForSource }
 
     Column {
         Box(
@@ -184,7 +184,7 @@ fun BudgetDetailed(
         ) {
             Column {
                 Text(
-                    text = "${type} = ${ sumTotal }:",
+                    text = "$type = " + String.format("%.2f", sumTotal),
                     fontWeight = FontWeight.Bold
                     )
                 LazyColumn {

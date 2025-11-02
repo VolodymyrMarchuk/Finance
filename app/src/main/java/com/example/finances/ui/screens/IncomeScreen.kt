@@ -287,12 +287,14 @@ fun SeeLastTenIncome(
                                 Row(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(
-                                        text = sourceList[income.incomeSourceId - 1]!!.sourceIncomeName,
-                                        fontSize = 24.sp,
-                                        modifier = Modifier.fillMaxSize(0.5f)
-
-                                    )
+                                    for (source in sourceList) {
+                                        if (source!!.sourceIncomeId == income.incomeSourceId) {
+                                            Text(
+                                                text = source.sourceIncomeName,
+                                                fontSize = 24.sp,
+                                                modifier = Modifier.fillMaxSize(0.5f))
+                                        }
+                                    }
                                     Text(
                                         text = income.incomeSum.toString(),
                                         fontWeight = FontWeight.Bold

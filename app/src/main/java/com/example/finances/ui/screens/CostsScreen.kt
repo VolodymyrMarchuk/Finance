@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -289,12 +290,14 @@ fun SeeLastTenCosts(
                                 Row(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text(
-                                        text = sourceList[costs.costsSourceId - 1]!!.sourceCostsName,
-                                        fontSize = 24.sp,
-                                        modifier = Modifier.fillMaxSize(0.5f)
-
-                                    )
+                                    for (source in sourceList) {
+                                        if (source!!.sourceCostsId == costs.costsSourceId) {
+                                            Text(
+                                                text = source.sourceCostsName,
+                                                fontSize = 24.sp,
+                                                modifier = Modifier.fillMaxSize(0.5f))
+                                        }
+                                    }
                                     Text(
                                         text = costs.costsSum.toString(),
                                         fontWeight = FontWeight.Bold

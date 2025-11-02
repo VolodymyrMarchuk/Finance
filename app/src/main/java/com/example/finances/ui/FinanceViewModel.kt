@@ -63,7 +63,8 @@ class FinanceViewModel(
     private var _typeAndPeriod = MutableStateFlow(StateTypeAndPeriod())
     val typeAndPeriod = _typeAndPeriod.asStateFlow()
 
-    private val today = LocalDate.now()
+    private val _today = MutableStateFlow(LocalDate.now())
+    val today = _today.asStateFlow().value
 
     //Convert Long->Date to String->Date ----------------------------------------------------------
     fun convertDateLongToString(selectedDate: Long): String {

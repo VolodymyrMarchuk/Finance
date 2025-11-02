@@ -27,7 +27,7 @@ interface FinanceDao {
     suspend fun addCostsSource(newCostsSource: SourceCosts)
     @Insert(entity = Costs::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun addCosts(newCosts: Costs)
-    @Query("SELECT * FROM sourceCosts")
+    @Query("SELECT * FROM sourceCosts ORDER BY sourceCostsName")
     fun showCostsSources() : Flow<List<SourceCosts?>>
     @Query("SELECT * FROM costs WHERE costsUserId=:userId ORDER BY costsDate DESC LIMIT 10")
     fun showTenCosts(userId: Int) : Flow<List<Costs?>>
@@ -45,7 +45,7 @@ interface FinanceDao {
     suspend fun addIncomeSource(newIncomeSource: SourceIncome)
     @Insert(entity = Income::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun addIncome(newIncome: Income)
-    @Query("SELECT * FROM sourceIncome")
+    @Query("SELECT * FROM sourceIncome ORDER BY sourceIncomeName")
     fun showIncomeSources() : Flow<List<SourceIncome?>>
     @Query("SELECT * FROM income WHERE incomeUserId=:userId ORDER BY incomeDate DESC LIMIT 10")
     fun showTenIncome(userId: Int) : Flow<List<Income?>>
